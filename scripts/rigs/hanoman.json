@@ -1,0 +1,56 @@
+{
+  "source": "assets-src/hanoman-parts.jpg",
+  "outDir": "src/assets/characters/hanoman",
+  "mirror": true,
+  "outputScale": 0.3,
+  "bgThreshold": 40,
+  "inkFixes": [
+    { "line": [[1722, 1380], [1730, 1410], [1740, 1440], [1752, 1460]], "width": 7 },
+    { "line": [[1755, 1370], [1768, 1395], [1780, 1415]], "width": 6 },
+    { "line": [[1825, 1475], [1850, 1500], [1875, 1530], [1895, 1560]], "width": 6 }
+  ],
+  "bgSeeds": [[1200, 1000]],
+  "pieces": {
+    "torso": { "seed": [1000, 400] },
+    "head": { "seed": [250, 300] },
+    "frontUpper": {
+      "seed": [650, 350],
+      "drop": [[200, 600], [540, 580], [546, 562], [558, 552], [575, 548], [592, 551], [604, 560], [612, 578], [680, 578], [680, 1100], [200, 1100]]
+    },
+    "frontFore": {
+      "seed": [450, 750],
+      "keep": [[200, 600], [540, 580], [546, 562], [558, 552], [575, 548], [592, 551], [604, 560], [612, 578], [680, 578], [680, 1100], [200, 1100]]
+    },
+    "backUpper": {
+      "seed": [1380, 350],
+      "drop": [[1400, 580], [1495, 575], [1500, 556], [1510, 536], [1522, 526], [1540, 521], [1558, 527], [1570, 543], [1578, 560], [1760, 560], [1760, 1100], [1400, 1100]]
+    },
+    "backFore": {
+      "seed": [1600, 750],
+      "keep": [[1400, 580], [1495, 575], [1500, 556], [1510, 536], [1522, 526], [1540, 521], [1558, 527], [1570, 543], [1578, 560], [1760, 560], [1760, 1100], [1400, 1100]]
+    },
+    "legFront": { "seed": [200, 1300] },
+    "legBack": { "seed": [640, 1300], "flip": true },
+    "tail": { "seed": [1700, 1310] },
+    "sashA": { "seed": [930, 1500] },
+    "sashB": { "seed": [1240, 1500] }
+  },
+  "bones": [
+    { "name": "torso", "piece": "torso", "pivot": [1000, 700] },
+    { "name": "backUpper", "piece": "backUpper", "parent": "torso", "pivot": [1345, 255], "at": [1215, 265], "tip": [1535, 570] },
+    { "name": "backFore", "piece": "backFore", "parent": "backUpper", "pivot": [1535, 570], "at": [1535, 570], "tip": [1680, 900], "tuding": [1680, 900] },
+    { "name": "tail", "piece": "tail", "parent": "torso", "pivot": [1605, 1915], "at": [1130, 760] },
+    { "name": "legBack", "piece": "legBack", "parent": "torso", "pivot": [640, 1070], "at": [1080, 850], "angle": 10 },
+    { "name": "legFront", "piece": "legFront", "parent": "torso", "pivot": [200, 1070], "at": [930, 850], "angle": -10 },
+    { "name": "sashA", "piece": "sashA", "parent": "torso", "pivot": [930, 1365], "at": [900, 640] },
+    { "name": "sashB", "piece": "sashB", "parent": "torso", "pivot": [1240, 1390], "at": [1150, 640] },
+    { "name": "head", "piece": "head", "parent": "torso", "pivot": [350, 505], "at": [1000, 190] },
+    { "name": "frontUpper", "piece": "frontUpper", "parent": "torso", "pivot": [690, 250], "at": [845, 265], "tip": [577, 595] },
+    { "name": "frontFore", "piece": "frontFore", "parent": "frontUpper", "pivot": [577, 595], "at": [577, 595], "tip": [390, 900], "tuding": [390, 900] }
+  ],
+  "points": {
+    "tailTip": { "bone": "tail", "at": [1865, 1275] }
+  },
+  "drawOrder": ["tail", "backUpper", "backFore", "legBack", "legFront", "torso", "sashA", "sashB", "head", "frontUpper", "frontFore"],
+  "previewPose": { "frontUpper": -100, "frontFore": -20, "backUpper": 140, "backFore": -30 }
+}
