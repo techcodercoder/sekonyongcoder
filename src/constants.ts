@@ -155,6 +155,7 @@ export interface Move {
   hop: number; // upward px/s at wind-up, 0 for none
   bodyTilt: { windUp: number; strike: number }; // whole puppet lean, positive = forward
   spin?: number; // degrees the whole puppet turns during the strike
+  turn?: boolean; // the dalang turns the puppet round to its back during the wind-up
   dive?: number; // downward px/s: flies until it lands
   fire?: boolean; // the tail burns through the move (Aji Ekor Api)
   fireball?: boolean; // no melee hitbox; a fireball leaves the tail tip
@@ -229,11 +230,15 @@ export const COMBO = {
       shake: { duration: 160, intensity: 0.009 },
       next: {},
     },
+    // A wayang's legs cannot swing, so the dalang kicks by turning the puppet
+    // round like a coin to show its back, then thrusting it into the
+    // opponent with a slight lean so the feet drive in sideways.
     tendangDepan: {
       label: 'Tendang',
-      windUp: { frontLeg: 20, frontArm: -40, backArm: 50 },
-      strike: { frontLeg: -85 },
-      windUpFrames: 5,
+      turn: true,
+      windUp: { frontArm: -60, backArm: 60 },
+      strike: { frontArm: -20, backArm: 130 },
+      windUpFrames: 7,
       strikeFrames: 3,
       active: 3,
       recovery: 13,
@@ -243,8 +248,9 @@ export const COMBO = {
       pushback: 220,
       lunge: 160,
       hop: 0,
-      bodyTilt: { windUp: -6, strike: -12 },
-      hit: { x: 25, y: -20, w: 95, h: 50 },
+      // Turned round, a positive lean tips the head away and the feet toward the opponent.
+      bodyTilt: { windUp: 0, strike: 30 },
+      hit: { x: 20, y: -30, w: 90, h: 90 },
       shake: { duration: 60, intensity: 0.003 },
       next: { hand: 'tinju', kick: 'tendangBelakang' },
     },

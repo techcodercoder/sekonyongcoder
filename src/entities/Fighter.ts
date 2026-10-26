@@ -90,6 +90,9 @@ export class Fighter extends Phaser.GameObjects.Container {
   private baseTint?: number;
 
   private sizer: Phaser.GameObjects.Container;
+  // Between sizer and rig: scaleX through 0 to -1 turns the puppet round on
+  // its vertical axis like a coin, without touching the rig's facing.
+  private turner: Phaser.GameObjects.Container;
   private rig: Phaser.GameObjects.Container;
   private joints!: Record<JointKey, Joint>;
   // What GSAP animates; springs carry the joints toward these.
@@ -112,7 +115,8 @@ export class Fighter extends Phaser.GameObjects.Container {
     scene.add.existing(this);
 
     this.rig = scene.add.container(0, 0);
-    this.sizer = scene.add.container(0, 0, [this.rig]);
+    this.turner = scene.add.container(0, 0, [this.rig]);
+    this.sizer = scene.add.container(0, 0, [this.turner]);
     this.add(this.sizer);
     if (FIGHTER.art.enabled && scene.textures.exists(pieceKey('hanoman', 'torso'))) this.buildPuppetRig();
     else this.buildRig();
@@ -517,7 +521,7 @@ export class Fighter extends Phaser.GameObjects.Container {
   private killVisuals(): void {
     this.visualTl?.kill();
     const limbs = Object.entries(this.targets).filter(([k]) => k !== 'tail').map(([, t]) => t);
-    gsap.killTweensOf([this.rig, ...limbs]);
+    gsap.killTweensOf([this.rig, this.turner, ...limbs]);
   }
 
   // Animates the puppet into the pose for a state, once per change.
@@ -526,6 +530,7 @@ export class Fighter extends Phaser.GameObjects.Container {
     this.shownPose = state;
     if (state === 'lying') return; // keep the fall animation running
     this.killVisuals();
+    if (this.turner.scaleX !== 1) gsap.to(this.turner, { scaleX: 1, duration: 0.1, ease: 'power2.out' });
     const tl = gsap.timeline();
     this.visualTl = tl;
     const { frontArm, backArm, frontElbow, backElbow, frontLeg, backLeg } = this.targets;
@@ -602,6 +607,7 @@ export class Fighter extends Phaser.GameObjects.Container {
 
     this.tweenJoints(tl, m.windUp, windUp, 0);
     tl.to(this.rig, { angle: m.bodyTilt.windUp * f, y: 0, ...windUp }, 0);
+    tl.to(this.turner, { scaleX: m.turn ? -1 : 1, duration: windUp.duration, ease: 'power2.inOut' }, 0);
     this.tweenJoints(tl, m.strike, { duration: strikeDur, ease: 'power4.in' }, strikeAt);
     const lean = m.bodyTilt.strike + (m.spin ?? 0);
     tl.to(this.rig, { angle: lean * f, duration: strikeDur, ease: m.spin ? 'power2.out' : 'power4.in' }, strikeAt);
@@ -614,6 +620,7 @@ export class Fighter extends Phaser.GameObjects.Container {
     const recover = { duration: frames * DT * 0.9, ease: 'power2.inOut' };
     this.tweenJoints(tl, { ...POSE.stance, tail: 0 }, recover, 0);
     tl.to(this.rig, { angle: 0, ...recover }, 0);
+    tl.to(this.turner, { scaleX: 1, ...recover }, 0);
   }
 
   private salto(): void {
