@@ -419,3 +419,27 @@ export const AI = {
   closeRange: 140,
   midRange: 260,
 } as const;
+
+// Secondary motion. A wayang's arms hang from pins, so when the dalang moves
+// the body they lag, swing past and settle. GSAP animates each joint's
+// target; a damped spring makes the joint chase it every logic frame, and
+// body acceleration, spins and hits push the springs. Set enabled to false
+// for the old rigid motion.
+//   k: stiffness (1/s^2), higher snaps faster
+//   c: damping (1/s), lower wobbles longer
+//   coupling: how much body acceleration swings the joint
+export const SPRING = {
+  enabled: true,
+  joints: {
+    frontArm: { k: 320, c: 15, coupling: 0.45 },
+    backArm: { k: 320, c: 15, coupling: 0.45 },
+    frontElbow: { k: 240, c: 11, coupling: 0.6 },
+    backElbow: { k: 240, c: 11, coupling: 0.6 },
+    tail: { k: 140, c: 7, coupling: 0.7 },
+    sash: { k: 90, c: 5, coupling: 0.9 },
+  },
+  spinCoupling: 0.25, // lag from the whole puppet turning (salto, spins)
+  hitKick: { arm: 520, elbow: 820, tail: 380, sash: 300 }, // deg/s flung back on a hit
+  blockKick: 0.35, // share of hitKick on a block
+  maxSpeed: 1600, // deg/s cap so a big spike never flips a limb around
+} as const;

@@ -8,6 +8,7 @@ import {
   GAME,
   KELIR,
   POSE,
+  SPRING,
   STICKS,
   type JointKey,
   type JointPose,
@@ -23,6 +24,19 @@ type Button = 'hand' | 'kick';
 type Action = Button | 'jump' | 'ekorApi';
 type Size = 'normal' | 'big' | 'small';
 type Joint = Phaser.GameObjects.Container;
+type Angle = { angle: number };
+
+// A joint chasing its animated target (see SPRING). Without a config the
+// joint just copies the target, as legs do.
+interface Spring {
+  joint: Joint;
+  target: Angle;
+  angle: number;
+  vel: number;
+  cfg?: { k: number; c: number; coupling: number };
+  kick: number; // deg/s added on a hit
+  parent?: Spring; // the upper arm for an elbow, for its world orientation
+}
 
 export type HitResult = 'hit' | 'block' | 'ko';
 
@@ -78,6 +92,12 @@ export class Fighter extends Phaser.GameObjects.Container {
   private sizer: Phaser.GameObjects.Container;
   private rig: Phaser.GameObjects.Container;
   private joints!: Record<JointKey, Joint>;
+  // What GSAP animates; springs carry the joints toward these.
+  private targets!: Record<JointKey, Angle>;
+  private sashTargets: Angle[] = [];
+  private springs: Spring[] = [];
+  private springOf = new Map<Angle, Spring>();
+  private prevMotion = { vx: 0, vy: 0, tilt: 0, tiltVel: 0 };
   private tudings: { stick: Joint; shoulder: Joint; elbow: Joint }[] = [];
   private tail!: Joint;
   private sashes: Joint[] = [];
@@ -103,11 +123,12 @@ export class Fighter extends Phaser.GameObjects.Container {
       for (const img of this.images) img.setTint(tint);
     }
 
+    this.setupSprings();
     this.showPose('idle');
     this.swayTail();
-    gsap.to(this.sashes, { angle: 5, duration: 0.9, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 0.3 });
+    gsap.to(this.sashTargets, { angle: 5, duration: 0.9, ease: 'sine.inOut', yoyo: true, repeat: -1, stagger: 0.3 });
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () =>
-      gsap.killTweensOf([this.rig, this.sizer, this.tail, ...this.sashes, ...Object.values(this.joints)]),
+      gsap.killTweensOf([this.rig, this.sizer, ...this.sashTargets, ...Object.values(this.targets)]),
     );
   }
 
@@ -216,6 +237,7 @@ export class Fighter extends Phaser.GameObjects.Container {
     }
 
     this.physics();
+    this.updateSprings();
     this.syncTudings();
   }
 
@@ -353,11 +375,13 @@ export class Fighter extends Phaser.GameObjects.Container {
       this.vx = dir * m.pushback * power * 0.6;
       this.stateFrames = m.blockstun;
       this.enterState('blockstun');
+      this.kickSprings(SPRING.blockKick);
       return 'block';
     }
 
     this.health = Math.max(0, this.health - Math.round(m.damage * power));
     this.move = undefined;
+    this.kickSprings(1);
     this.gainMeter(AJI.gainHurt);
     if (this.health === 0) {
       this.ko(dir);
@@ -404,7 +428,7 @@ export class Fighter extends Phaser.GameObjects.Container {
     this.move = undefined;
     this.queued = undefined;
     this.enterState(this.grounded ? 'idle' : 'jump');
-    if (!gsap.isTweening(this.tail)) this.swayTail();
+    if (!gsap.isTweening(this.targets.tail)) this.swayTail();
   }
 
   private getUp(): void {
@@ -492,7 +516,7 @@ export class Fighter extends Phaser.GameObjects.Container {
 
   private killVisuals(): void {
     this.visualTl?.kill();
-    const limbs = Object.entries(this.joints).filter(([k]) => k !== 'tail').map(([, j]) => j);
+    const limbs = Object.entries(this.targets).filter(([k]) => k !== 'tail').map(([, t]) => t);
     gsap.killTweensOf([this.rig, ...limbs]);
   }
 
@@ -504,7 +528,7 @@ export class Fighter extends Phaser.GameObjects.Container {
     this.killVisuals();
     const tl = gsap.timeline();
     this.visualTl = tl;
-    const { frontArm, backArm, frontElbow, backElbow, frontLeg, backLeg } = this.joints;
+    const { frontArm, backArm, frontElbow, backElbow, frontLeg, backLeg } = this.targets;
     const base = POSE.stance;
     const f = this.facing;
     const settle = { duration: POSE.settleDuration };
@@ -574,7 +598,7 @@ export class Fighter extends Phaser.GameObjects.Container {
     const strikeDur = m.strikeFrames * DT;
 
     if (m.fire) this.burnTail((m.windUpFrames + m.strikeFrames + m.recovery) * DT);
-    if (m.windUp.tail !== undefined || m.strike.tail !== undefined) gsap.killTweensOf(this.tail);
+    if (m.windUp.tail !== undefined || m.strike.tail !== undefined) gsap.killTweensOf(this.targets.tail);
 
     this.tweenJoints(tl, m.windUp, windUp, 0);
     tl.to(this.rig, { angle: m.bodyTilt.windUp * f, y: 0, ...windUp }, 0);
@@ -599,7 +623,8 @@ export class Fighter extends Phaser.GameObjects.Container {
   }
 
   private swayTail(): void {
-    gsap.fromTo(this.tail, { angle: 0 }, { angle: 8, duration: 1.1, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+    this.normalizeTarget(this.targets.tail);
+    gsap.fromTo(this.targets.tail, { angle: 0 }, { angle: 8, duration: 1.1, ease: 'sine.inOut', yoyo: true, repeat: -1 });
   }
 
   private burnTail(seconds: number): void {
@@ -612,7 +637,84 @@ export class Fighter extends Phaser.GameObjects.Container {
 
   private tweenJoints(tl: gsap.core.Timeline, pose: JointPose, vars: gsap.TweenVars, at: number): void {
     for (const [key, angle] of Object.entries(pose) as [JointKey, number][]) {
-      tl.to(this.joints[key], { angle, ...vars }, at);
+      this.normalizeTarget(this.targets[key]);
+      tl.to(this.targets[key], { angle, ...vars }, at);
+    }
+  }
+
+  // Targets are plain numbers, so unlike a Phaser angle they never wrap.
+  // Wrapping before each new tween keeps it taking the short way round (a
+  // strike that ended at 290 recovers from -70); the spring shifts with it.
+  private normalizeTarget(target: Angle): void {
+    const wrapped = Phaser.Math.Angle.WrapDegrees(target.angle);
+    const shift = wrapped - target.angle;
+    if (!shift) return;
+    target.angle = wrapped;
+    const spring = this.springOf.get(target);
+    if (spring) spring.angle += shift;
+  }
+
+  // ---- secondary motion ----
+
+  private setupSprings(): void {
+    const cfg = SPRING.joints;
+    const kick = SPRING.hitKick;
+    const make = (joint: Joint, conf?: Spring['cfg'], hitKick = 0, parent?: Spring): Spring => {
+      const target = { angle: joint.angle };
+      const spring: Spring = { joint, target, angle: joint.angle, vel: 0, cfg: SPRING.enabled ? conf : undefined, kick: hitKick, parent };
+      this.springs.push(spring);
+      this.springOf.set(target, spring);
+      return spring;
+    };
+    const j = this.joints;
+    const frontArm = make(j.frontArm, cfg.frontArm, kick.arm);
+    const backArm = make(j.backArm, cfg.backArm, kick.arm);
+    this.targets = {
+      frontArm: frontArm.target,
+      backArm: backArm.target,
+      frontElbow: make(j.frontElbow, cfg.frontElbow, kick.elbow, frontArm).target,
+      backElbow: make(j.backElbow, cfg.backElbow, kick.elbow, backArm).target,
+      frontLeg: make(j.frontLeg).target,
+      backLeg: make(j.backLeg).target,
+      tail: make(j.tail, cfg.tail, kick.tail).target,
+    };
+    this.sashTargets = this.sashes.map((sash) => make(sash, cfg.sash, kick.sash).target);
+  }
+
+  // Runs once per logic frame, so hit-stop freezes it with everything else.
+  private updateSprings(): void {
+    const m = this.prevMotion;
+    const facing = this.facing;
+    // Body acceleration in the puppet's own frame: forward is +x.
+    const ax = ((this.vx - m.vx) / DT) * facing;
+    const ay = (this.vy - m.vy) / DT;
+    const tilt = this.rig.angle * facing;
+    const tiltVel = Phaser.Math.Angle.WrapDegrees(tilt - m.tilt) / DT;
+    const tiltAcc = (tiltVel - m.tiltVel) / DT;
+    Object.assign(m, { vx: this.vx, vy: this.vy, tilt, tiltVel });
+
+    for (const s of this.springs) {
+      if (!s.cfg) {
+        s.angle = s.target.angle;
+        s.joint.angle = s.angle;
+        continue;
+      }
+      const { k, c, coupling } = s.cfg;
+      // A limb hanging at angle 0 points down; positive swings it backward.
+      // Accelerating forward leaves it behind, accelerating up drops it.
+      const o = Phaser.Math.DegToRad(s.angle + (s.parent?.angle ?? 0));
+      const push = coupling * (ax * Math.cos(o) + ay * Math.sin(o)) - SPRING.spinCoupling * tiltAcc;
+      const acc = k * (s.target.angle - s.angle) - c * s.vel + push;
+      s.vel = Phaser.Math.Clamp(s.vel + acc * DT, -SPRING.maxSpeed, SPRING.maxSpeed);
+      s.angle += s.vel * DT;
+      s.joint.angle = s.angle;
+    }
+  }
+
+  // Limbs fling back from a blow; `share` scales it down for blocks.
+  private kickSprings(share: number): void {
+    for (const s of this.springs) {
+      if (s.cfg) s.vel += s.kick * share * (0.7 + Math.random() * 0.5);
     }
   }
 
