@@ -56,33 +56,48 @@ export const KEYMAPS: Record<'p1' | 'p2', KeyMap> = {
   },
 };
 
+// Presses are latched from each key's 'down' event rather than read with
+// JustDown: Phaser clears a key's just-down flag on release, so a tap that
+// goes down and up between two frames would otherwise be lost.
 export class KeyboardController implements Controller {
   private keys: Record<Action, Phaser.Input.Keyboard.Key[]>;
+  private pressed = new Set<Action>();
 
   constructor(scene: Phaser.Scene, map: KeyMap) {
     const kb = scene.input.keyboard!;
-    this.keys = Object.fromEntries(
-      Object.entries(map).map(([action, codes]) => [action, codes.map((c) => kb.addKey(c))]),
-    ) as Record<Action, Phaser.Input.Keyboard.Key[]>;
+    const entries = Object.entries(map) as [Action, number[]][];
+    this.keys = Object.fromEntries(entries.map(([action, codes]) => [action, codes.map((c) => kb.addKey(c))])) as Record<
+      Action,
+      Phaser.Input.Keyboard.Key[]
+    >;
+
+    const listeners: [Phaser.Input.Keyboard.Key, () => void][] = [];
+    for (const [action, keys] of Object.entries(this.keys) as [Action, Phaser.Input.Keyboard.Key[]][]) {
+      for (const key of keys) {
+        const onDown = () => this.pressed.add(action);
+        key.on(Phaser.Input.Keyboard.Events.DOWN, onDown);
+        listeners.push([key, onDown]);
+      }
+    }
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      for (const [key, fn] of listeners) key.off(Phaser.Input.Keyboard.Events.DOWN, fn);
+    });
   }
 
   read(): InputState {
-    const k = this.keys;
-    const held = (a: Action) => k[a].some((key) => key.isDown);
-    return {
+    const held = (a: Action) => this.keys[a].some((key) => key.isDown);
+    const was = (a: Action) => this.pressed.has(a);
+    const state: InputState = {
       left: held('left'),
       right: held('right'),
-      jumpPressed: anyJustDown(k.jump),
-      handPressed: anyJustDown(k.hand),
-      kickPressed: anyJustDown(k.kick),
-      triwikramaPressed: anyJustDown(k.triwikrama),
-      ekorApiPressed: anyJustDown(k.ekorApi),
-      mengecilPressed: anyJustDown(k.mengecil),
+      jumpPressed: was('jump'),
+      handPressed: was('hand'),
+      kickPressed: was('kick'),
+      triwikramaPressed: was('triwikrama'),
+      ekorApiPressed: was('ekorApi'),
+      mengecilPressed: was('mengecil'),
     };
+    this.pressed.clear();
+    return state;
   }
-}
-
-// JustDown clears a key's flag when read, so every key must be read each frame.
-function anyJustDown(keys: Phaser.Input.Keyboard.Key[]): boolean {
-  return keys.map((key) => Phaser.Input.Keyboard.JustDown(key)).some(Boolean);
 }

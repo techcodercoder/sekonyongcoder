@@ -99,6 +99,7 @@ export class Fighter extends Phaser.GameObjects.Container {
   private springOf = new Map<Angle, Spring>();
   private prevMotion = { vx: 0, vy: 0, tilt: 0, tiltVel: 0 };
   private tudings: { stick: Joint; shoulder: Joint; elbow: Joint }[] = [];
+  private gapit?: Phaser.GameObjects.Graphics;
   private tail!: Joint;
   private sashes: Joint[] = [];
   private images: Phaser.GameObjects.Image[] = [];
@@ -604,14 +605,18 @@ export class Fighter extends Phaser.GameObjects.Container {
     tl.to(this.rig, { angle: m.bodyTilt.windUp * f, y: 0, ...windUp }, 0);
     this.tweenJoints(tl, m.strike, { duration: strikeDur, ease: 'power4.in' }, strikeAt);
     const lean = m.bodyTilt.strike + (m.spin ?? 0);
-    tl.to(this.rig, { angle: lean * f, duration: strikeDur, ease: m.spin ? 'power2.out' : 'power4.in' }, strikeAt);
+    // Big turns (spins, tipping flat for a kick) snap out fast; small leans hit late.
+    const bigTurn = m.spin || Math.abs(m.bodyTilt.strike) > 45;
+    tl.to(this.rig, { angle: lean * f, duration: strikeDur, ease: bigTurn ? 'power3.out' : 'power4.in' }, strikeAt);
   }
 
   private recoverVisual(frames: number): void {
     this.killVisuals();
     const tl = gsap.timeline();
     this.visualTl = tl;
-    const recover = { duration: frames * DT * 0.9, ease: 'power2.inOut' };
+    // Snap, hold, then return: the dalang holds a pose before moving on.
+    const hold = frames * DT * POSE.recoverHold;
+    const recover = { duration: frames * DT * (0.9 - POSE.recoverHold), delay: hold, ease: 'power2.inOut' };
     this.tweenJoints(tl, { ...POSE.stance, tail: 0 }, recover, 0);
     tl.to(this.rig, { angle: 0, ...recover }, 0);
   }
@@ -718,10 +723,11 @@ export class Fighter extends Phaser.GameObjects.Container {
     }
   }
 
-  // The dalang holds the tuding from below, so the sticks stay near vertical
-  // in world space whatever the arm is doing.
+  // The dalang holds the tuding and the gapit from below, so the sticks stay
+  // near vertical in world space whatever the arm or body is doing.
   private syncTudings(): void {
     const tiltLocal = this.rig.angle * this.rig.scaleX;
+    if (this.gapit) this.gapit.angle = -tiltLocal;
     for (const t of this.tudings) {
       t.stick.angle = STICKS.tudingSlant - t.shoulder.angle - t.elbow.angle - tiltLocal;
     }
@@ -773,6 +779,7 @@ export class Fighter extends Phaser.GameObjects.Container {
 
   private buildGapit(): Phaser.GameObjects.Graphics {
     const gapit = this.scene.add.graphics();
+    this.gapit = gapit;
     if (STICKS.show) {
       gapit.fillStyle(STICKS.color);
       gapit.fillRect(-STICKS.gapitWidth / 2, -30, STICKS.gapitWidth, HALF_H + 30 + STICKS.gapitLength);

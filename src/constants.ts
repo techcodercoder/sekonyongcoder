@@ -89,6 +89,7 @@ export type JointPose = Partial<Record<JointKey, number>>;
 
 export const POSE = {
   settleDuration: 0.08,
+  recoverHold: 0.35, // share of a move's recovery spent holding the strike pose
   // Kuda-kuda, the wayang fighting stance: legs planted wide, front hand on
   // the hip with the elbow out, back arm stretched back at shoulder height
   // with the forearm and claw hanging down.
@@ -229,10 +230,13 @@ export const COMBO = {
       shake: { duration: 160, intensity: 0.009 },
       next: {},
     },
+    // A wayang's legs are part of its body and cannot swing, so the dalang
+    // kicks by tipping the whole puppet flat: head back, feet thrust sideways
+    // into the opponent. The legs keep the kuda-kuda; only the body turns.
     tendangDepan: {
       label: 'Tendang',
-      windUp: { frontLeg: 20, frontArm: -40, backArm: 50 },
-      strike: { frontLeg: -85 },
+      windUp: { frontArm: -80, backArm: 130 },
+      strike: { frontArm: -30, backArm: 150 },
       windUpFrames: 5,
       strikeFrames: 3,
       active: 3,
@@ -243,8 +247,9 @@ export const COMBO = {
       pushback: 220,
       lunge: 160,
       hop: 0,
-      bodyTilt: { windUp: -6, strike: -12 },
-      hit: { x: 25, y: -20, w: 95, h: 50 },
+      bodyTilt: { windUp: -15, strike: -90 },
+      // Tipped flat, the feet sit 75-95 px ahead of the body centre at waist height.
+      hit: { x: 40, y: -35, w: 75, h: 70 },
       shake: { duration: 60, intensity: 0.003 },
       next: { hand: 'tinju', kick: 'tendangBelakang' },
     },
