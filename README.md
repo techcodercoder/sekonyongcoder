@@ -46,6 +46,7 @@ Laboratorium pengujian karakter hasil pemotongan dan penulangan rig:
 | **Jatayu** | Burung Garuda suci, ksatria angkasa pelindung Dewi Sinta. | Siap Tanding |
 | **Indrajit** | Megananda, putra mahkota Alengka sakti pemilik panah Nagapasa & Keris pusaka. | Siap Tanding |
 | **Yuyu Kangkang** | Raja Siluman Kepiting Samudera bercapit emas dan bersaput poleng. | Siap Tanding |
+| **Laksmana** | Raden Lakshmana, ksatria agung pemanah Ayodhya pembawa busur Gandewa. | Siap Tanding |
 
 ---
 

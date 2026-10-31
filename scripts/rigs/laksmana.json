@@ -2,38 +2,53 @@
   "source": "assets-src/laksmana-parts.jpg",
   "outDir": "src/assets/characters/laksmana",
   "mirror": true,
-  "outputScale": 0.3,
+  "outputScale": 1.2,
   "bgThreshold": 40,
+  "bgSeeds": [
+    [520, 750]
+  ],
   "pieces": {
-    "torso": { "seed": [1030, 750] },
-    "head": { "seed": [350, 350] },
-    "frontUpper": { "seed": [1460, 400] },
-    "frontFore": { "seed": [1550, 880] },
-    "backUpper": { "seed": [1830, 400] },
-    "backFore": { "seed": [1840, 860] },
-    "legFront": { "seed": [240, 1320] },
-    "legBack": { "seed": [590, 1320], "flip": true },
-    "tail": { "seed": [1390, 1820] },
-    "sashA": { "seed": [1030, 1750] },
-    "sashB": { "seed": [260, 840] }
+    "torso": { "seed": [534, 470] },
+    "head": { "seed": [132, 183] },
+    "frontUpper": {
+      "seed": [72, 394],
+      "drop": [[10, 470], [330, 470], [330, 600], [10, 600]]
+    },
+    "frontFore": {
+      "seed": [72, 394],
+      "keep": [[10, 470], [330, 470], [330, 600], [10, 600]]
+    },
+    "backUpper": {
+      "seed": [757, 244],
+      "drop": [[700, 345], [870, 345], [870, 650], [700, 650]]
+    },
+    "backFore": {
+      "seed": [757, 244],
+      "keep": [[700, 345], [870, 345], [870, 650], [700, 650]]
+    },
+    "legFront": { "seed": [100, 657] },
+    "legBack": { "seed": [279, 668], "flip": true },
+    "tail": { "seed": [708, 955] },
+    "sashA": { "seed": [445, 824] },
+    "sashB": { "seed": [563, 771] }
   },
   "bones": [
-    { "name": "torso", "piece": "torso", "pivot": [1030, 650] },
-    { "name": "backUpper", "piece": "backUpper", "parent": "torso", "pivot": [1880, 260], "at": [1220, 200], "tip": [1770, 550] },
-    { "name": "backFore", "piece": "backFore", "parent": "backUpper", "pivot": [1810, 680], "at": [1770, 550], "tip": [1850, 950], "tuding": [1850, 950] },
-    { "name": "tail", "piece": "tail", "parent": "torso", "pivot": [1340, 1340], "at": [1150, 670] },
-    { "name": "sashB", "piece": "sashB", "parent": "torso", "pivot": [220, 700], "at": [1120, 640], "angle": -30 },
-    { "name": "legBack", "piece": "legBack", "parent": "torso", "pivot": [590, 1200], "at": [1120, 780], "angle": 10 },
-    { "name": "legFront", "piece": "legFront", "parent": "torso", "pivot": [220, 1200], "at": [940, 780], "angle": -10 },
-    { "name": "sashA", "piece": "sashA", "parent": "torso", "pivot": [1040, 1370], "at": [1030, 630] },
-    { "name": "head", "piece": "head", "parent": "torso", "pivot": [300, 540], "at": [1030, 150] },
-    { "name": "frontUpper", "piece": "frontUpper", "parent": "torso", "pivot": [1380, 260], "at": [840, 200], "tip": [1520, 550] },
-    { "name": "frontFore", "piece": "frontFore", "parent": "frontUpper", "pivot": [1480, 680], "at": [1520, 550], "tip": [1610, 950], "tuding": [1610, 950] }
+    { "name": "torso", "piece": "torso", "pivot": [520, 360] },
+    { "name": "backUpper", "piece": "backUpper", "parent": "torso", "pivot": [735, 190], "at": [640, 195], "tip": [755, 345] },
+    { "name": "backFore", "piece": "backFore", "parent": "backUpper", "pivot": [755, 345], "at": [755, 345], "tip": [810, 580], "tuding": [810, 580] },
+    { "name": "tail", "piece": "tail", "parent": "torso", "pivot": [850, 670], "at": [580, 360] },
+    { "name": "sashA", "piece": "sashA", "parent": "torso", "pivot": [445, 710], "at": [580, 340] },
+    { "name": "sashB", "piece": "sashB", "parent": "torso", "pivot": [563, 630], "at": [460, 260], "angle": -15 },
+    { "name": "legBack", "piece": "legBack", "parent": "torso", "pivot": [275, 625], "at": [570, 480], "angle": 10 },
+    { "name": "legFront", "piece": "legFront", "parent": "torso", "pivot": [100, 625], "at": [470, 480], "angle": -10 },
+    { "name": "head", "piece": "head", "parent": "torso", "pivot": [200, 260], "at": [480, 140] },
+    { "name": "frontUpper", "piece": "frontUpper", "parent": "torso", "pivot": [87, 335], "at": [395, 195], "tip": [55, 470] },
+    { "name": "frontFore", "piece": "frontFore", "parent": "frontUpper", "pivot": [55, 470], "at": [55, 470], "tip": [285, 490], "tuding": [285, 490] }
   ],
   "points": {
-    "tailTip": { "bone": "tail", "at": [1440, 1960] },
-    "arrowTip": { "bone": "frontFore", "at": [1610, 950] }
+    "tailTip": { "bone": "tail", "at": [700, 950] },
+    "arrowTip": { "bone": "frontFore", "at": [285, 490] }
   },
-  "drawOrder": ["tail", "sashB", "backUpper", "backFore", "legBack", "legFront", "torso", "sashA", "head", "frontUpper", "frontFore"],
+  "drawOrder": ["tail", "sashA", "sashB", "backUpper", "backFore", "legBack", "legFront", "torso", "head", "frontUpper", "frontFore"],
   "previewPose": { "frontUpper": -80, "frontFore": -30, "backUpper": 100, "backFore": 20 }
 }

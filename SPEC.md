@@ -185,13 +185,18 @@ Untuk pengujian dan simulasi karakter hasil pemotongan dan penulangan rig (*rig 
 - **Mekanik Khusus Anggota Tubuh:** Bagian lengan bawah (`frontFore` dan `backFore`) dirakit langsung menggunakan capit kepiting raksasa (*Crab Pincers*). Ketika melancarkan serangan pukulan atau combo, capit kepiting mencengkeram ke depan dengan jangkauan luas. Bagian ekor (`tail`) menggunakan sulur lengkung capit belakang.
 - **Resolusi:** File `scripts/rigs/yuyukangkang.json` memisahkan lengan atas dari lengan bawah di area siku, menautkan capit kepiting ke sendi siku, dan menghasilkan 11 potongan transparan serta `rig.json`. Yuyu Kangkang terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
 
+### 8.5 Konfigurasi & Perakitan Rig Raden Laksmana (Ksatria Pemanah Ayodhya)
+- **Karakter:** Raden Laksmana (Lakshmana), ksatria alusan lanyap adik Prabu Rama, berparas tampan dengan mahkota supit urang/gelung kelinci dan garuda mungkur, kulit kuning langsat keemasan, berbusana dodot batik parang ksatria, bersenjata busur panah sakti Gandewa dan tabung anak panah.
+- **Mekanik Khusus Anggota Tubuh:** Dilengkapi busur panah naga sakti Gandewa (`sashB`) dan selongsong anak panah (`sashA`) yang tersampir di punggung ksatria, serta selendang merah emas sampur keraton (`tail`) yang berkibar anggun.
+- **Resolusi:** Lembar potongan `assets-src/laksmana-parts.jpg` diekstraksi dengan `outputScale: 1.2` dan `bgSeeds` pada rongga busur panah, menghasilkan 11 potongan transparan dan `rig.json`. Karakter Raden Laksmana terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
+
 ---
 
 ## 9. Status & Ringkasan Pengerjaan (Implementation Status)
 
 | Komponen | Deskripsi | Status |
 | :--- | :--- | :--- |
-| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit, Yuyu Kangkang diekstraksi & dirakit | Selesai |
+| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit, Yuyu Kangkang, Laksmana diekstraksi & dirakit | Selesai |
 | **TitleScene UI Navigation** | Tombol navigasi Arcade Story, CPU, 2P, dan Dojo Rig | Selesai |
 | **Story Management Tool** | Script CLI admin interaktif (`npm run story:admin`) | Selesai |
 | **Data Contract (`story-config.json`)** | Skema konfigurasi babak cerita dan alur video | Selesai |
