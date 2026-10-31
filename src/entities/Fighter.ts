@@ -21,12 +21,14 @@ import hanomanRig from '../assets/characters/hanoman/rig.json';
 import sugriwaRig from '../assets/characters/sugriwa/rig.json';
 import subaliRig from '../assets/characters/subali/rig.json';
 import rahwanaRig from '../assets/characters/rahwana/rig.json';
+import jatayuRig from '../assets/characters/jatayu/rig.json';
 
 const RIGS: Record<string, RigData> = {
   hanoman: hanomanRig as unknown as RigData,
   sugriwa: sugriwaRig as unknown as RigData,
   subali: subaliRig as unknown as RigData,
   rahwana: rahwanaRig as unknown as RigData,
+  jatayu: jatayuRig as unknown as RigData,
 };
 
 type State = 'idle' | 'walk' | 'jump' | 'attack' | 'hitstun' | 'blockstun' | 'knockdown' | 'lying' | 'getup' | 'ko';

@@ -170,11 +170,18 @@ Untuk pengujian dan simulasi karakter hasil pemotongan dan penulangan rig (*rig 
 
 ---
 
+### 8.2 Penyelesaian Rig Jatayu (Garuda Wing Rigging)
+- **Gejala:** Karakter Jatayu awalnya tidak muncul di daftar pilihan Dojo dan sempat gagal diekstraksi.
+- **Penyebab:** Jatayu berpostur burung garuda bersayap (bukan kera/humanoid), sehingga koordinat seed template lama mengenai area putih di luar potongan gambar.
+- **Resolusi:** Koordinat 11 potongan tubuh Jatayu (kepala, badan berzirah emas, sendi sayap, sayap utama kiri & kanan, cakar kaki depan & belakang, ekor merak kipas, dan selendang) berhasil dipetakan secara presisi pada `scripts/rigs/jatayu.json`. Skrip `build-rig.py` sukses menghasilkan `rig.json` dan 11 potongan wayang. Jatayu kini telah terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
+
+---
+
 ## 9. Status & Ringkasan Pengerjaan (Implementation Status)
 
 | Komponen | Deskripsi | Status |
 | :--- | :--- | :--- |
-| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana diekstraksi & dirakit | Selesai |
+| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu diekstraksi & dirakit | Selesai |
 | **TitleScene UI Navigation** | Tombol navigasi Arcade Story, CPU, 2P, dan Dojo Rig | Selesai |
 | **Story Management Tool** | Script CLI admin interaktif (`npm run story:admin`) | Selesai |
 | **Data Contract (`story-config.json`)** | Skema konfigurasi babak cerita dan alur video | Selesai |

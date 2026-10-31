@@ -43,6 +43,7 @@ Laboratorium pengujian karakter hasil pemotongan dan penulangan rig:
 | **Sugriwa** | Raja Kera Gua Kiskenda, berbulu merah keemasan. | Siap Tanding |
 | **Subali** | Resi Wanara sakti pemilik Aji Pancasona. | Siap Tanding |
 | **Rahwana** | Prabu Dasamuka, raja raksasa Alengka berkepala sepuluh. | Siap Tanding |
+| **Jatayu** | Burung Garuda suci, ksatria angkasa pelindung Dewi Sinta. | Siap Tanding |
 
 ---
 
