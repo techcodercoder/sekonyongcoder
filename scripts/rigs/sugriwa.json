@@ -7,10 +7,22 @@
   "pieces": {
     "torso": { "seed": [1000, 400] },
     "head": { "seed": [250, 300] },
-    "frontUpper": { "seed": [650, 350] },
-    "frontFore": { "seed": [450, 750] },
-    "backUpper": { "seed": [1380, 350] },
-    "backFore": { "seed": [1600, 750] },
+    "frontUpper": {
+      "seed": [650, 350],
+      "drop": [[200, 600], [540, 580], [546, 562], [558, 552], [575, 548], [592, 551], [604, 560], [612, 578], [680, 578], [680, 1100], [200, 1100]]
+    },
+    "frontFore": {
+      "seed": [450, 750],
+      "keep": [[200, 600], [540, 580], [546, 562], [558, 552], [575, 548], [592, 551], [604, 560], [612, 578], [680, 578], [680, 1100], [200, 1100]]
+    },
+    "backUpper": {
+      "seed": [1380, 350],
+      "drop": [[1400, 580], [1495, 575], [1500, 556], [1510, 536], [1522, 526], [1540, 521], [1558, 527], [1570, 543], [1578, 560], [1760, 560], [1760, 1100], [1400, 1100]]
+    },
+    "backFore": {
+      "seed": [1600, 750],
+      "keep": [[1400, 580], [1495, 575], [1500, 556], [1510, 536], [1522, 526], [1540, 521], [1558, 527], [1570, 543], [1578, 560], [1760, 560], [1760, 1100], [1400, 1100]]
+    },
     "legFront": { "seed": [200, 1300] },
     "legBack": { "seed": [640, 1300], "flip": true },
     "tail": { "seed": [1700, 1310] },
@@ -33,5 +45,6 @@
   "points": {
     "tailTip": { "bone": "tail", "at": [1865, 1275] }
   },
-  "drawOrder": ["tail", "backUpper", "backFore", "legBack", "legFront", "torso", "sashA", "sashB", "head", "frontUpper", "frontFore"]
+  "drawOrder": ["tail", "backUpper", "backFore", "legBack", "legFront", "torso", "sashA", "sashB", "head", "frontUpper", "frontFore"],
+  "previewPose": { "frontUpper": -100, "frontFore": -20, "backUpper": 140, "backFore": -30 }
 }

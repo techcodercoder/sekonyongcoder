@@ -1,3 +1,6 @@
 node_modules
 dist
 .DS_Store
+
+# Large media files (>100MB exceeds GitHub push limits)
+public/videos/intro_babak_1.mp4

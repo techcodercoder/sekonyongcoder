@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "story:admin": "python scripts/story-manager.py"
   },
   "dependencies": {
     "gsap": "^3.15.0",
