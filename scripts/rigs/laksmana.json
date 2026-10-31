@@ -1,0 +1,54 @@
+{
+  "source": "assets-src/laksmana-parts.jpg",
+  "outDir": "src/assets/characters/laksmana",
+  "mirror": true,
+  "outputScale": 1.2,
+  "bgThreshold": 40,
+  "bgSeeds": [
+    [520, 750]
+  ],
+  "pieces": {
+    "torso": { "seed": [534, 470] },
+    "head": { "seed": [132, 183] },
+    "frontUpper": {
+      "seed": [72, 394],
+      "drop": [[10, 470], [330, 470], [330, 600], [10, 600]]
+    },
+    "frontFore": {
+      "seed": [72, 394],
+      "keep": [[10, 470], [330, 470], [330, 600], [10, 600]]
+    },
+    "backUpper": {
+      "seed": [757, 244],
+      "drop": [[700, 345], [870, 345], [870, 650], [700, 650]]
+    },
+    "backFore": {
+      "seed": [757, 244],
+      "keep": [[700, 345], [870, 345], [870, 650], [700, 650]]
+    },
+    "legFront": { "seed": [100, 657] },
+    "legBack": { "seed": [279, 668], "flip": true },
+    "tail": { "seed": [708, 955] },
+    "sashA": { "seed": [445, 824] },
+    "sashB": { "seed": [563, 771] }
+  },
+  "bones": [
+    { "name": "torso", "piece": "torso", "pivot": [520, 360] },
+    { "name": "backUpper", "piece": "backUpper", "parent": "torso", "pivot": [735, 190], "at": [640, 195], "tip": [755, 345] },
+    { "name": "backFore", "piece": "backFore", "parent": "backUpper", "pivot": [755, 345], "at": [755, 345], "tip": [810, 580], "tuding": [810, 580] },
+    { "name": "tail", "piece": "tail", "parent": "torso", "pivot": [850, 670], "at": [580, 360] },
+    { "name": "sashA", "piece": "sashA", "parent": "torso", "pivot": [445, 710], "at": [580, 340] },
+    { "name": "sashB", "piece": "sashB", "parent": "torso", "pivot": [563, 630], "at": [460, 260], "angle": -15 },
+    { "name": "legBack", "piece": "legBack", "parent": "torso", "pivot": [275, 625], "at": [570, 480], "angle": 10 },
+    { "name": "legFront", "piece": "legFront", "parent": "torso", "pivot": [100, 625], "at": [470, 480], "angle": -10 },
+    { "name": "head", "piece": "head", "parent": "torso", "pivot": [200, 260], "at": [480, 140] },
+    { "name": "frontUpper", "piece": "frontUpper", "parent": "torso", "pivot": [87, 335], "at": [395, 195], "tip": [55, 470] },
+    { "name": "frontFore", "piece": "frontFore", "parent": "frontUpper", "pivot": [55, 470], "at": [55, 470], "tip": [285, 490], "tuding": [285, 490] }
+  ],
+  "points": {
+    "tailTip": { "bone": "tail", "at": [700, 950] },
+    "arrowTip": { "bone": "frontFore", "at": [285, 490] }
+  },
+  "drawOrder": ["tail", "sashA", "sashB", "backUpper", "backFore", "legBack", "legFront", "torso", "head", "frontUpper", "frontFore"],
+  "previewPose": { "frontUpper": -80, "frontFore": -30, "backUpper": 100, "backFore": 20 }
+}

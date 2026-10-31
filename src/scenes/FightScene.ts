@@ -11,8 +11,9 @@ import { Hud } from '../systems/Hud';
 import { KEYMAPS, KeyboardController, NO_INPUT, type Controller, type InputState } from '../systems/InputController';
 import { Lighting } from '../systems/Lighting';
 import type { Mode } from './TitleScene';
+import storyConfig from '../data/story-config.json';
 
-const hanomanPieces = import.meta.glob<string>('../assets/characters/hanoman/*.png', {
+const allCharacterPieces = import.meta.glob<string>('../assets/characters/*/*.png', {
   eager: true,
   query: '?url',
   import: 'default',
@@ -20,17 +21,17 @@ const hanomanPieces = import.meta.glob<string>('../assets/characters/hanoman/*.p
 
 const STEP_MS = 1000 / GAME.fps;
 
-interface RoundData {
+export interface RoundData {
   mode: Mode;
   wins: [number, number];
   round: number;
+  chapterIndex?: number;
+  player1Char?: string;
+  cpuChar?: string;
 }
 
 type Phase = 'intro' | 'fight' | 'over';
 
-// One round of a best-of-three. The scene restarts itself for each round,
-// carrying the score in its data. Logic runs in fixed frames: fighters,
-// fireballs, hits and hit-stop all advance together in step().
 export class FightScene extends Phaser.Scene {
   private match!: RoundData;
   private fighters!: [Fighter, Fighter];
@@ -44,6 +45,8 @@ export class FightScene extends Phaser.Scene {
   private combo: [number, number] = [0, 0];
   private accumulator = 0;
   private pending: [InputState, InputState] = [NO_INPUT, NO_INPUT];
+  private rageUsed = false;
+  private ragePromptShown = false;
 
   constructor() {
     super('FightScene');
@@ -51,9 +54,11 @@ export class FightScene extends Phaser.Scene {
 
   preload(): void {
     preloadGunungan(this);
-    for (const [path, url] of Object.entries(hanomanPieces)) {
-      const piece = path.split('/').pop()!.replace('.png', '');
-      this.load.image(pieceKey('hanoman', piece), url);
+    for (const [path, url] of Object.entries(allCharacterPieces)) {
+      const parts = path.split('/');
+      const piece = parts.pop()!.replace('.png', '');
+      const character = parts.pop()!;
+      this.load.image(pieceKey(character, piece), url);
     }
   }
 
@@ -66,14 +71,22 @@ export class FightScene extends Phaser.Scene {
     this.accumulator = 0;
     this.pending = [NO_INPUT, NO_INPUT];
     this.framesLeft = MATCH.roundSeconds * GAME.fps;
+    this.rageUsed = false;
+    this.ragePromptShown = false;
     gsap.globalTimeline.resume();
 
     new Lighting(this);
     this.drawGedebog();
     this.effects = new Effects(this);
 
-    const p1 = new Fighter(this, MATCH.startX[0], 1);
-    const p2 = new Fighter(this, MATCH.startX[1], -1, FIGHTER.altTint);
+    // Get current chapter from story-config.json if in arcade mode
+    const currentChapter = storyConfig.chapters.find((c: any) => c.chapterIndex === (data.chapterIndex ?? 1)) ?? storyConfig.chapters[0];
+    const p1Char = data.player1Char ?? (data.mode === 'arcade' ? currentChapter?.player1 : 'hanoman') ?? 'hanoman';
+    const cpuChar = data.cpuChar ?? (data.mode === 'arcade' ? currentChapter?.cpu : 'hanoman') ?? 'hanoman';
+
+    const isAutoRevive = data.mode === 'arcade';
+    const p1 = new Fighter(this, MATCH.startX[0], 1, p1Char, undefined, isAutoRevive);
+    const p2 = new Fighter(this, MATCH.startX[1], -1, cpuChar, p1Char === cpuChar ? FIGHTER.altTint : undefined, false);
     p1.opponent = p2;
     p2.opponent = p1;
     this.fighters = [p1, p2];
@@ -85,11 +98,16 @@ export class FightScene extends Phaser.Scene {
       data.mode === 'demo' ? new AIController(p1, p2, fireballs) : new KeyboardController(this, KEYMAPS.p1),
       cpu ? new AIController(p2, p1, fireballs) : new KeyboardController(this, KEYMAPS.p2),
     ];
-    this.hud = new Hud(this, ['Hanoman · P1', cpu ? 'Hanoman · Dalang' : 'Hanoman · P2'], data.wins);
+
+    const p1Label = p1Char.charAt(0).toUpperCase() + p1Char.slice(1);
+    const cpuLabel = cpuChar.charAt(0).toUpperCase() + cpuChar.slice(1);
+    this.hud = new Hud(this, [`${p1Label} · P1`, cpu ? `${cpuLabel} · Dalang` : `${cpuLabel} · P2`], data.wins);
 
     gununganTransition(this, () => {
-      this.hud.announce(`Babak ${data.round}`, '', 0.6);
-      this.time.delayedCall(800, () => {
+      const bannerTitle = data.mode === 'arcade' && currentChapter ? currentChapter.title : `Babak ${data.round}`;
+      const bannerSub = data.mode === 'arcade' && currentChapter ? currentChapter.subtitle : '';
+      this.hud.announce(bannerTitle, bannerSub, 0.7);
+      this.time.delayedCall(900, () => {
         this.hud.announce('Perang!', '', 0.5);
         this.phase = 'fight';
       });
@@ -110,9 +128,6 @@ export class FightScene extends Phaser.Scene {
     this.hud.update(this.fighters, this.framesLeft / GAME.fps);
   }
 
-  // Render frames can outnumber logic frames (120 Hz screens), and a key's
-  // "just pressed" flag is only true for the render frame it was read in.
-  // Presses are therefore held here until a logic frame consumes them.
   private collectInputs(): void {
     const live = this.controllers.map((c) => c.read()) as [InputState, InputState];
     this.pending = this.pending.map((held, i) => {
@@ -137,6 +152,24 @@ export class FightScene extends Phaser.Scene {
       return;
     }
 
+    // Check Rage Combat trigger in Arcade mode: P1 HP <= 50%
+    if (this.match.mode === 'arcade' && !this.rageUsed && this.phase === 'fight') {
+      const [p1, p2] = this.fighters;
+      if (p1.health <= FIGHTER.maxHealth * 0.5) {
+        if (!this.ragePromptShown) {
+          this.ragePromptShown = true;
+          this.effects.label('⚡ AMUK SIAP! TEKAN TOMBOL SERANG! ⚡', p1.x, p1.y - 180, true);
+        }
+        const p1In = inputs[0];
+        const anyAction = p1In.handPressed || p1In.kickPressed || p1In.jumpPressed || p1In.ekorApiPressed || p1In.triwikramaPressed || p1In.mengecilPressed;
+        if (anyAction) {
+          this.rageUsed = true;
+          this.triggerRageCombat(p1, p2);
+          return;
+        }
+      }
+    }
+
     this.fighters.forEach((f, i) => f.tick(inputs[i]));
     this.fireballs.forEach((b) => b.tick());
     this.fireballs = this.fireballs.filter((b) => b.alive);
@@ -147,7 +180,39 @@ export class FightScene extends Phaser.Scene {
     if (this.phase === 'fight' && --this.framesLeft <= 0) this.timeUp();
   }
 
-  // Fighters cannot walk through each other; jumping over is allowed.
+  private triggerRageCombat(p1: Fighter, p2: Fighter): void {
+    this.phase = 'intro';
+    p1.freezeInPlace();
+    p2.freezeInPlace();
+    this.cameras.main.flash(400, 255, 50, 50);
+
+    const currentChapter = storyConfig.chapters.find((c: any) => c.chapterIndex === (this.match.chapterIndex ?? 1)) ?? storyConfig.chapters[0];
+    const rageVids = currentChapter?.rageVideos ?? ['/videos/rage_combat_1.mp4', '/videos/rage_combat_2.mp4'];
+    const chosenVideo = rageVids[Math.floor(Math.random() * rageVids.length)];
+
+    this.time.delayedCall(300, () => {
+      this.scene.pause();
+      this.scene.launch('CinematicScene', {
+        badge: '⚡ RAGE COMBAT AMUK WAYANG ⚡',
+        title: 'Jurus Pamungkas Mengguncang Kelir!',
+        subtitle: 'Amuk memotong 50% darah lawan!',
+        videoUrl: chosenVideo,
+        durationSeconds: 10,
+        onComplete: () => {
+          this.scene.stop('CinematicScene');
+          this.scene.resume();
+          this.phase = 'fight';
+          p2.takeDirectDamage(Math.round(FIGHTER.maxHealth * 0.5));
+          this.effects.label('-50% DARAH LAWAN!', p2.x, p2.y - 140, true);
+          this.cameras.main.shake(500, 0.02);
+          if (p2.health <= 1) {
+            this.knockout(0);
+          }
+        },
+      });
+    });
+  }
+
   private separate(): void {
     const [a, b] = this.fighters;
     const solid = (f: Fighter) => f.state !== 'ko' && f.state !== 'lying' && f.state !== 'knockdown';
@@ -163,7 +228,6 @@ export class FightScene extends Phaser.Scene {
     const clamp = (x: number) => Phaser.Math.Clamp(x, KELIR.wallMargin, GAME.width - KELIR.wallMargin);
     a.x = clamp(a.x - (dir * overlap) / 2);
     b.x = clamp(b.x + (dir * overlap) / 2);
-    // Against a wall, the other fighter takes the rest of the push.
     const rest = minDist - Math.abs(b.x - a.x);
     if (rest > 0) {
       if (clamp(b.x + dir * rest) !== b.x + dir * rest) a.x = clamp(a.x - dir * rest);
@@ -172,16 +236,19 @@ export class FightScene extends Phaser.Scene {
   }
 
   private resolveHits(): void {
-    // Both hitboxes are taken before either hit applies, so trades happen.
-    const boxes = this.fighters.map((f) => f.hitbox());
-    this.fighters.forEach((attacker, i) => {
-      const box = boxes[i];
-      const defender = attacker.opponent;
-      if (!box || !attacker.move || defender.invulnerable) return;
+    const [a, b] = this.fighters;
+    const pairs: [Fighter, Fighter][] = [
+      [a, b],
+      [b, a],
+    ];
+    pairs.forEach(([attacker, defender], i) => {
+      const hit = attacker.hitbox();
+      if (!hit || defender.invulnerable) return;
       const hurt = defender.hurtbox();
-      if (!Phaser.Geom.Intersects.RectangleToRectangle(box, hurt)) return;
-      const contact = Phaser.Geom.Rectangle.Intersection(box, hurt);
-      const move = attacker.move;
+      const contact = Phaser.Geom.Rectangle.Intersection(hit, hurt);
+      if (!contact || contact.width <= 0 || contact.height <= 0) return;
+
+      const move = attacker.move!;
       const result = defender.receiveHit(move, attacker.x, attacker.power);
       attacker.onConnect(result);
       const heavy = !!move.launch || attacker.power > 1;
@@ -222,7 +289,6 @@ export class FightScene extends Phaser.Scene {
     this.freeze(heavy ? EFFECTS.hitStopHeavy : EFFECTS.hitStop);
   }
 
-  // Combo counters clear once the defender can act again.
   private trackCombos(): void {
     this.fighters.forEach((f, i) => {
       if (this.combo[i] && f.opponent.actionable) {
@@ -232,7 +298,6 @@ export class FightScene extends Phaser.Scene {
     });
   }
 
-  // Hit-stop: logic frames and every tween pause together.
   private freeze(frames: number): void {
     this.hitStop = Math.max(this.hitStop, frames);
     gsap.globalTimeline.pause();
@@ -268,6 +333,50 @@ export class FightScene extends Phaser.Scene {
   }
 
   private matchOver(champion: number): void {
+    // In Arcade Mode: If Player 1 wins, transition to Outro Film and next chapter!
+    if (this.match.mode === 'arcade' && champion === 0) {
+      const currentIdx = this.match.chapterIndex ?? 1;
+      const currentChapter = storyConfig.chapters.find((c: any) => c.chapterIndex === currentIdx) ?? storyConfig.chapters[0];
+      const nextIdx = currentIdx + 1;
+      const nextChapter = storyConfig.chapters.find((c: any) => c.chapterIndex === nextIdx);
+
+      this.scene.pause();
+      this.scene.launch('CinematicScene', {
+        badge: `🎬 EPILOG BABAK ${currentIdx}`,
+        title: `${currentChapter.title} Paripurna!`,
+        subtitle: nextChapter ? `Bersiap menuju Babak ${nextIdx}: ${nextChapter.title}` : 'Kisah Epos Ramayana Telah Tamat Sempurna!',
+        videoUrl: currentChapter.outroVideo,
+        durationSeconds: 6,
+        onComplete: () => {
+          this.scene.stop('CinematicScene');
+          if (nextChapter) {
+            this.scene.launch('CinematicScene', {
+              badge: `🎬 PROLOG BABAK ${nextIdx}`,
+              title: nextChapter.title,
+              subtitle: nextChapter.subtitle,
+              videoUrl: nextChapter.introVideo,
+              durationSeconds: 6,
+              onComplete: () => {
+                this.scene.stop('CinematicScene');
+                this.scene.restart({
+                  mode: 'arcade',
+                  wins: [0, 0],
+                  round: 1,
+                  chapterIndex: nextIdx,
+                  player1Char: nextChapter.player1,
+                  cpuChar: nextChapter.cpu,
+                });
+              },
+            });
+          } else {
+            // Victory all chapters complete
+            this.scene.start('TitleScene');
+          }
+        },
+      });
+      return;
+    }
+
     this.hud.announce(`${this.sideName(champion)} menang!`, 'J  main lagi      Esc  menu');
     this.input.keyboard!.once('keydown-J', () =>
       this.scene.restart({ mode: this.match.mode, wins: [0, 0], round: 1 }),
@@ -286,6 +395,11 @@ export class FightScene extends Phaser.Scene {
     });
     f.on('land', (x: number, y: number, impact?: boolean) => this.effects.dust(x, y, impact ? 2 : 1));
     f.on('jump', (x: number, y: number) => this.effects.dust(x, y, 0.6));
+    f.on('revive', () => {
+      this.cameras.main.flash(500, 255, 215, 0);
+      this.effects.label('✨ BANGKIT KEMBALI! ✨', f.x, f.y - 180, true);
+      this.hud.announce('Prajurit Bangkit Kembali!', 'Takdir kemenangan belum usai', 1.2);
+    });
     f.on('aji', (name: string) => {
       if (name === 'triwikrama') {
         this.cameras.main.flash(250, 255, 224, 160);
@@ -296,7 +410,6 @@ export class FightScene extends Phaser.Scene {
     });
   }
 
-  // The gedebog (banana trunk) is where a dalang plants the puppets; here it is the floor.
   private drawGedebog(): void {
     const h = KELIR.floorHeight;
     const top = GAME.height - h;
