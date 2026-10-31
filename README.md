@@ -48,6 +48,7 @@ Laboratorium pengujian karakter hasil pemotongan dan penulangan rig:
 | **Yuyu Kangkang** | Raja Siluman Kepiting Samudera bercapit emas dan bersaput poleng. | Siap Tanding |
 | **Laksmana** | Raden Lakshmana, ksatria agung pemanah Ayodhya pembawa busur Gandewa. | Siap Tanding |
 | **Kumbakarna** | Ksatria raksasa agung Alengka bertubuh merah legam pembawa gada pusaka. | Siap Tanding |
+| **Rama** | Sri Rama Wijaya, titisan Batara Wisnu, pangeran Ayodhya pemanah sakti pembawa busur Gandiwa. | Siap Tanding |
 
 ---
 

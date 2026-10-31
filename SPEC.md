@@ -190,6 +190,14 @@ Untuk pengujian dan simulasi karakter hasil pemotongan dan penulangan rig (*rig 
 - **Mekanik Khusus Anggota Tubuh:** Dilengkapi busur panah naga sakti Gandewa (`sashB`) dan selongsong anak panah (`sashA`) yang tersampir di punggung ksatria, serta selendang merah emas sampur keraton (`tail`) yang berkibar anggun.
 - **Resolusi:** Lembar potongan `assets-src/laksmana-parts.jpg` diekstraksi dengan `outputScale: 1.2` dan `bgSeeds` pada rongga busur panah, menghasilkan 11 potongan transparan dan `rig.json`. Karakter Raden Laksmana terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
 
+### 8.7 Konfigurasi & Perakitan Rig Prabu Rama (Titisan Batara Wisnu / Pangeran Ayodhya)
+- **Karakter:** Sri Rama Wijaya (Prabu Rama), ksatria agung luruh lanyap bermahkota supit urang mas, berkulit biru/hijau toska keemasan, berbusana dodot batik parang ksatria dengan praba persilangan dada pusaka, dan bersenjata busur panah sakti Gandiwa.
+- **Konfigurasi Teknis:**
+  - File potongan sumber: `assets-src/rama-parts.jpg` (2048x2048)
+  - Parameter rig: `mirror: true` dengan `flip: true` pada kepala (untuk menjaga arah pandang hadap kanan selaras dengan tubuh dan langkah kaki), `outputScale: 0.32`, floodfill `bgSeeds` pada rongga supit urang, lekukan dodot teardrop, dan rongga jari tangan.
+  - Sumbu sendi & tulang: Menggunakan pembagian lengan atas/bawah bertumpang tindih halus (*smooth overlapping caps*) dengan busur panah sakti Gandiwa (`tail`) tersemat elegan di punggung.
+- **Resolusi:** `scripts/rigs/rama.json` sukses menghasilkan 11 potongan transparan dan `rig.json`. Prabu Rama terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
+
 ### 8.6 Konfigurasi & Perakitan Rig Kumbakarna (Raksasa Agung Alengka)
 - **Karakter:** Raden Kumbakarna, ksatria raksasa agung bertubuh raksasa merah legam berbulu lebat, berparas menyeramkan dengan taring mencuat dan mata mendelik namun berhati luhur membela tanah air, berbusana dodot batik parang, bersaput poleng catur, berornamen praba sayap kelelawar emas, dan bersenjata gada pusaka raksasa.
 - **Mekanik Khusus Anggota Tubuh:** Memotong kaki jongkok bawaan pada sisi torso menggunakan multi-polygon drop masking, memisahkan lengan atas berbulu dan lengan bawah bergelang emas, serta menautkan gada pusaka raksasa (`sashB`) di pinggang ksatria raksasa.
@@ -201,7 +209,7 @@ Untuk pengujian dan simulasi karakter hasil pemotongan dan penulangan rig (*rig 
 
 | Komponen | Deskripsi | Status |
 | :--- | :--- | :--- |
-| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit, Yuyu Kangkang, Laksmana, Kumbakarna diekstraksi & dirakit | Selesai |
+| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit, Yuyu Kangkang, Laksmana, Kumbakarna, Rama diekstraksi & dirakit | Selesai |
 | **TitleScene UI Navigation** | Tombol navigasi Arcade Story, CPU, 2P, dan Dojo Rig | Selesai |
 | **Story Management Tool** | Script CLI admin interaktif (`npm run story:admin`) | Selesai |
 | **Data Contract (`story-config.json`)** | Skema konfigurasi babak cerita dan alur video | Selesai |
