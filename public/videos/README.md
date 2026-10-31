@@ -5,6 +5,8 @@ Folder ini menyimpan berkas video sinematik yang diputar di dalam game (*Cinemat
 ## Berkas Video & Alur Babak
 - **`intro_babak_1.mp4`**: Sinematik pembuka babak 1 (*Perang Saudara Kiskenda*).
   *(Catatan: Berkas ini berukuran ~192 MB sehingga di-exclude dari git repository agar tidak melanggar batas maksimal 100 MB di GitHub).*
+- **`episode2.mp4`**: Sinematik pembuka babak 2.
+  *(Catatan: Berkas ini berukuran ~185 MB sehingga di-exclude dari git repository).*
 - **`combo_1_sugriwa_ke_subali.mp4`**: Cutscene Rage Combat (Amuk) varian 1 berdurasi ~10 detik.
 - **`combo_2_sugriwa_ke_subali.mp4`**: Cutscene Rage Combat (Amuk) varian 2 berdurasi ~10 detik.
 - **`closing_babak1.mp4`**: Sinematik penutup babak 1 / transisi ke babak berikutnya.

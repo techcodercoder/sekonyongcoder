@@ -25,6 +25,7 @@ import jatayuRig from '../assets/characters/jatayu/rig.json';
 import indrajitRig from '../assets/characters/indrajit/rig.json';
 import yuyukangkangRig from '../assets/characters/yuyukangkang/rig.json';
 import laksmanaRig from '../assets/characters/laksmana/rig.json';
+import kumbakarnaRig from '../assets/characters/kumbakarna/rig.json';
 
 const RIGS: Record<string, RigData> = {
   hanoman: hanomanRig as unknown as RigData,
@@ -35,6 +36,7 @@ const RIGS: Record<string, RigData> = {
   indrajit: indrajitRig as unknown as RigData,
   yuyukangkang: yuyukangkangRig as unknown as RigData,
   laksmana: laksmanaRig as unknown as RigData,
+  kumbakarna: kumbakarnaRig as unknown as RigData,
 };
 
 type State = 'idle' | 'walk' | 'jump' | 'attack' | 'hitstun' | 'blockstun' | 'knockdown' | 'lying' | 'getup' | 'ko';

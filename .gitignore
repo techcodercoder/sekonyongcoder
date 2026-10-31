@@ -4,3 +4,4 @@ dist
 
 # Large media files (>100MB exceeds GitHub push limits)
 public/videos/intro_babak_1.mp4
+public/videos/episode2.mp4
