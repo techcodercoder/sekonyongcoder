@@ -1,0 +1,278 @@
+{
+  "points": {
+    "tailTip": {
+      "bone": "tail",
+      "x": -99.52,
+      "y": 55.36
+    },
+    "arrowTip": {
+      "bone": "frontFore",
+      "x": -0.14,
+      "y": 163.2
+    }
+  },
+  "pieces": {
+    "torso": {
+      "file": "torso.png",
+      "x": 191.68,
+      "y": 32.64,
+      "w": 224.96,
+      "h": 392.64
+    },
+    "head": {
+      "file": "head.png",
+      "x": 489.92,
+      "y": 18.56,
+      "w": 148.8,
+      "h": 153.92
+    },
+    "frontUpper": {
+      "file": "frontUpper.png",
+      "x": 157.76,
+      "y": 64.0,
+      "w": 83.52,
+      "h": 96.0
+    },
+    "frontFore": {
+      "file": "frontFore.png",
+      "x": 91.2,
+      "y": 144.0,
+      "w": 111.04,
+      "h": 178.56
+    },
+    "backUpper": {
+      "file": "backUpper.png",
+      "x": 25.28,
+      "y": 66.24,
+      "w": 64.32,
+      "h": 87.36
+    },
+    "backFore": {
+      "file": "backFore.png",
+      "x": 24.64,
+      "y": 140.8,
+      "w": 58.56,
+      "h": 181.76
+    },
+    "legFront": {
+      "file": "legFront.png",
+      "x": 544.64,
+      "y": 334.08,
+      "w": 93.44,
+      "h": 301.76
+    },
+    "legBack": {
+      "file": "legBack.png",
+      "x": 403.2,
+      "y": 334.08,
+      "w": 93.44,
+      "h": 301.76
+    },
+    "tail": {
+      "file": "tail.png",
+      "x": 412.48,
+      "y": 213.44,
+      "w": 230.08,
+      "h": 56.32
+    },
+    "sashA": {
+      "file": "sashA.png",
+      "x": 340.16,
+      "y": 433.28,
+      "w": 36.16,
+      "h": 148.48
+    },
+    "sashB": {
+      "file": "sashB.png",
+      "x": 243.2,
+      "y": 440.96,
+      "w": 30.4,
+      "h": 146.88
+    }
+  },
+  "bones": [
+    {
+      "name": "torso",
+      "piece": "torso",
+      "parent": null,
+      "pivot": [
+        325.44,
+        208.0
+      ],
+      "at": null,
+      "rest": 0.0,
+      "angle": 0
+    },
+    {
+      "name": "tail",
+      "piece": "tail",
+      "parent": "torso",
+      "pivot": [
+        514.56,
+        213.44
+      ],
+      "at": [
+        264.64,
+        83.2
+      ],
+      "rest": 0.0,
+      "angle": -70
+    },
+    {
+      "name": "backUpper",
+      "piece": "backUpper",
+      "parent": "torso",
+      "pivot": [
+        72.64,
+        71.04
+      ],
+      "at": [
+        275.84,
+        76.8
+      ],
+      "rest": 17.9,
+      "angle": 0
+    },
+    {
+      "name": "backFore",
+      "piece": "backFore",
+      "parent": "backUpper",
+      "pivot": [
+        47.04,
+        150.4
+      ],
+      "at": [
+        47.04,
+        150.4
+      ],
+      "rest": -2.2,
+      "angle": 0,
+      "tuding": [
+        53.44,
+        320.0
+      ]
+    },
+    {
+      "name": "legBack",
+      "piece": "legBack",
+      "parent": "torso",
+      "pivot": [
+        440.96,
+        343.68
+      ],
+      "at": [
+        293.44,
+        243.2
+      ],
+      "rest": 0.0,
+      "angle": 10
+    },
+    {
+      "name": "legFront",
+      "piece": "legFront",
+      "parent": "torso",
+      "pivot": [
+        582.72,
+        343.68
+      ],
+      "at": [
+        357.44,
+        243.2
+      ],
+      "rest": 0.0,
+      "angle": -10
+    },
+    {
+      "name": "sashA",
+      "piece": "sashA",
+      "parent": "torso",
+      "pivot": [
+        348.48,
+        433.28
+      ],
+      "at": [
+        351.04,
+        192.0
+      ],
+      "rest": 0.0,
+      "angle": 0
+    },
+    {
+      "name": "sashB",
+      "piece": "sashB",
+      "parent": "torso",
+      "pivot": [
+        264.0,
+        441.28
+      ],
+      "at": [
+        296.64,
+        192.0
+      ],
+      "rest": 0.0,
+      "angle": 0
+    },
+    {
+      "name": "head",
+      "piece": "head",
+      "parent": "torso",
+      "pivot": [
+        558.08,
+        166.4
+      ],
+      "at": [
+        325.44,
+        59.2
+      ],
+      "rest": 0.0,
+      "angle": 0
+    },
+    {
+      "name": "frontUpper",
+      "piece": "frontUpper",
+      "parent": "torso",
+      "pivot": [
+        223.04,
+        68.8
+      ],
+      "at": [
+        371.84,
+        76.8
+      ],
+      "rest": 25.3,
+      "angle": 0
+    },
+    {
+      "name": "frontFore",
+      "piece": "frontFore",
+      "parent": "frontUpper",
+      "pivot": [
+        181.44,
+        156.8
+      ],
+      "at": [
+        181.44,
+        156.8
+      ],
+      "rest": 0.4,
+      "angle": 0,
+      "tuding": [
+        180.16,
+        320.0
+      ]
+    }
+  ],
+  "drawOrder": [
+    "tail",
+    "sashA",
+    "sashB",
+    "backUpper",
+    "backFore",
+    "legBack",
+    "legFront",
+    "torso",
+    "head",
+    "frontUpper",
+    "frontFore"
+  ]
+}

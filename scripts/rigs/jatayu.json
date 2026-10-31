@@ -1,0 +1,39 @@
+{
+  "source": "assets-src/jatayu-parts.jpg",
+  "outDir": "src/assets/characters/jatayu",
+  "mirror": true,
+  "outputScale": 0.3,
+  "bgThreshold": 40,
+  "pieces": {
+    "torso": { "seed": [1028, 321] },
+    "head": { "seed": [484, 438] },
+    "frontUpper": { "seed": [1548, 824] },
+    "frontFore": { "seed": [656, 775] },
+    "backUpper": { "seed": [1775, 776] },
+    "backFore": { "seed": [1374, 418] },
+    "legFront": { "seed": [238, 1236] },
+    "legBack": { "seed": [598, 1223], "flip": true },
+    "tail": { "seed": [1736, 1393] },
+    "sashA": { "seed": [1057, 1537] },
+    "sashB": { "seed": [1332, 1758] }
+  },
+  "bones": [
+    { "name": "torso", "piece": "torso", "pivot": [1075, 700] },
+    { "name": "backUpper", "piece": "backUpper", "parent": "torso", "pivot": [1710, 750], "at": [1240, 220], "tip": [1940, 850] },
+    { "name": "backFore", "piece": "backFore", "parent": "backUpper", "pivot": [1330, 210], "at": [1940, 850], "tip": [1970, 70], "tuding": [1970, 70] },
+    { "name": "tail", "piece": "tail", "parent": "torso", "pivot": [1735, 1560], "at": [1160, 720] },
+    { "name": "legBack", "piece": "legBack", "parent": "torso", "pivot": [650, 1080], "at": [1140, 830], "angle": 10 },
+    { "name": "legFront", "piece": "legFront", "parent": "torso", "pivot": [180, 1080], "at": [960, 830], "angle": -10 },
+    { "name": "sashA", "piece": "sashA", "parent": "torso", "pivot": [1050, 1370], "at": [1075, 620] },
+    { "name": "sashB", "piece": "sashB", "parent": "torso", "pivot": [1330, 1370], "at": [1150, 620] },
+    { "name": "head", "piece": "head", "parent": "torso", "pivot": [380, 520], "at": [1050, 160] },
+    { "name": "frontUpper", "piece": "frontUpper", "parent": "torso", "pivot": [1535, 715], "at": [860, 220], "tip": [1550, 960] },
+    { "name": "frontFore", "piece": "frontFore", "parent": "frontUpper", "pivot": [680, 730], "at": [1550, 960], "tip": [60, 780], "tuding": [60, 780] }
+  ],
+  "points": {
+    "tailTip": { "bone": "tail", "at": [1735, 1150] },
+    "beak": { "bone": "head", "at": [40, 390] }
+  },
+  "drawOrder": ["tail", "backUpper", "backFore", "legBack", "legFront", "torso", "sashA", "sashB", "head", "frontUpper", "frontFore"],
+  "previewPose": { "frontUpper": -40, "frontFore": 30, "backUpper": 40, "backFore": -20 }
+}

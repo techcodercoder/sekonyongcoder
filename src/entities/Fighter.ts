@@ -18,6 +18,28 @@ import {
 import { NO_INPUT, type InputState } from '../systems/InputController';
 import { buildPuppet, pieceKey, pointToWorld, type Puppet, type RigData } from './Puppet';
 import hanomanRig from '../assets/characters/hanoman/rig.json';
+import sugriwaRig from '../assets/characters/sugriwa/rig.json';
+import subaliRig from '../assets/characters/subali/rig.json';
+import rahwanaRig from '../assets/characters/rahwana/rig.json';
+import jatayuRig from '../assets/characters/jatayu/rig.json';
+import indrajitRig from '../assets/characters/indrajit/rig.json';
+import yuyukangkangRig from '../assets/characters/yuyukangkang/rig.json';
+import laksmanaRig from '../assets/characters/laksmana/rig.json';
+import kumbakarnaRig from '../assets/characters/kumbakarna/rig.json';
+import ramaRig from '../assets/characters/rama/rig.json';
+
+const RIGS: Record<string, RigData> = {
+  hanoman: hanomanRig as unknown as RigData,
+  sugriwa: sugriwaRig as unknown as RigData,
+  subali: subaliRig as unknown as RigData,
+  rahwana: rahwanaRig as unknown as RigData,
+  jatayu: jatayuRig as unknown as RigData,
+  indrajit: indrajitRig as unknown as RigData,
+  yuyukangkang: yuyukangkangRig as unknown as RigData,
+  laksmana: laksmanaRig as unknown as RigData,
+  kumbakarna: kumbakarnaRig as unknown as RigData,
+  rama: ramaRig as unknown as RigData,
+};
 
 type State = 'idle' | 'walk' | 'jump' | 'attack' | 'hitstun' | 'blockstun' | 'knockdown' | 'lying' | 'getup' | 'ko';
 type Button = 'hand' | 'kick';
@@ -67,6 +89,8 @@ const HALF_H = FIGHTER.bodyHeight / 2;
 export class Fighter extends Phaser.GameObjects.Container {
   health: number = FIGHTER.maxHealth;
   meter = 0;
+  character = 'hanoman';
+  isAutoRevive = false;
   opponent!: Fighter;
   state: State = 'idle';
   move?: Move;
@@ -107,14 +131,17 @@ export class Fighter extends Phaser.GameObjects.Container {
   private visualTl?: gsap.core.Timeline;
   private shownPose?: string;
 
-  constructor(scene: Phaser.Scene, x: number, facing: number, tint?: number) {
+  constructor(scene: Phaser.Scene, x: number, facing: number, character = 'hanoman', tint?: number, isAutoRevive = false) {
     super(scene, x, FLOOR_Y - HALF_H);
     scene.add.existing(this);
 
     this.rig = scene.add.container(0, 0);
     this.sizer = scene.add.container(0, 0, [this.rig]);
+    this.character = character;
+    this.isAutoRevive = isAutoRevive;
     this.add(this.sizer);
-    if (FIGHTER.art.enabled && scene.textures.exists(pieceKey('hanoman', 'torso'))) this.buildPuppetRig();
+    const rigKey = RIGS[character] ? character : 'hanoman';
+    if (FIGHTER.art.enabled && scene.textures.exists(pieceKey(rigKey, 'torso'))) this.buildPuppetRig();
     else this.buildRig();
     this.rig.scaleX = facing;
 
@@ -302,7 +329,7 @@ export class Fighter extends Phaser.GameObjects.Container {
 
   // ---- moves ----
 
-  private startMove(id: MoveId): void {
+  public startMove(id: MoveId): void {
     const m: Move = COMBO.moves[id];
     this.move = m;
     this.moveFrame = 0;
@@ -384,6 +411,10 @@ export class Fighter extends Phaser.GameObjects.Container {
     this.kickSprings(1);
     this.gainMeter(AJI.gainHurt);
     if (this.health === 0) {
+      if (this.isAutoRevive) {
+        this.revive();
+        return 'hit';
+      }
       this.ko(dir);
       return 'ko';
     }
@@ -416,6 +447,39 @@ export class Fighter extends Phaser.GameObjects.Container {
     // Dibuang: the dalang flings the beaten puppet off the kelir, spinning.
     gsap.to(this.rig, { angle: `+=${k.spin * dir}`, duration: 1.4, ease: 'none' });
     this.tweenJoints(gsap.timeline(), { frontArm: -150, backArm: 160, frontLeg: -60, backLeg: 50 }, { duration: 0.2 }, 0);
+  }
+
+  revive(): void {
+    this.health = FIGHTER.maxHealth;
+    this.state = 'getup';
+    this.stateFrames = 60;
+    this.vx = -this.facing * 350;
+    this.vy = -250;
+    this.y = FLOOR_Y - HALF_H;
+    this.grounded = true;
+    this.killVisuals();
+    this.enterState('getup');
+    this.emit('revive');
+  }
+
+  setManualJointAngle(key: JointKey, angle: number): void {
+    if (this.targets?.[key]) this.targets[key].angle = angle;
+    if (this.joints?.[key]) this.joints[key].angle = angle;
+  }
+
+  getAllJoints(): Partial<Record<JointKey, Joint>> {
+    return this.joints ?? {};
+  }
+
+  getJointAngle(key: JointKey): number {
+    return this.joints?.[key]?.angle ?? 0;
+  }
+
+  takeDirectDamage(amount: number): void {
+    this.health = Math.max(1, this.health - amount);
+    this.kickSprings(2);
+    this.enterState('hitstun');
+    this.stateFrames = 30;
   }
 
   // Round won: settle into the stance and hold.
@@ -732,11 +796,14 @@ export class Fighter extends Phaser.GameObjects.Container {
   // Puppet assembled from the parts sheet (see scripts/build-rig.py).
   // The art is drawn at sheet resolution and scaled down as a whole.
   private buildPuppetRig(): void {
-    const puppet = buildPuppet(this.scene, 'hanoman', hanomanRig as unknown as RigData);
+    const charKey = RIGS[this.character] ? this.character : 'hanoman';
+    const rig = RIGS[charKey] ?? RIGS['hanoman'];
+    const puppet = buildPuppet(this.scene, charKey, rig);
     const scale = FIGHTER.art.height / puppet.height;
     puppet.art.setScale(scale).setY(HALF_H - puppet.footY * scale + FIGHTER.art.footDrop);
 
     const j = puppet.joints;
+    const dummyTail = this.scene.add.container();
     this.joints = {
       frontArm: j.frontUpper,
       frontElbow: j.frontFore,
@@ -744,13 +811,13 @@ export class Fighter extends Phaser.GameObjects.Container {
       backElbow: j.backFore,
       frontLeg: j.legFront,
       backLeg: j.legBack,
-      tail: j.tail,
+      tail: j.tail ?? dummyTail,
     };
-    this.tail = j.tail;
+    this.tail = j.tail ?? dummyTail;
     this.tailImage = puppet.images.tail;
-    this.tailTip = puppet.points.tailTip;
+    this.tailTip = puppet.points?.tailTip;
     this.images = Object.values(puppet.images);
-    this.sashes = [j.sashA, j.sashB];
+    this.sashes = [j.sashA, j.sashB].filter(Boolean);
 
     for (const [forearm, shoulder] of [['frontFore', j.frontUpper], ['backFore', j.backUpper]] as const) {
       const at = puppet.tudings[forearm];

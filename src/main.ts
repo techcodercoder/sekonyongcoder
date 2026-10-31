@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import { GAME, COLORS } from './constants';
 import { FightScene } from './scenes/FightScene';
 import { TitleScene } from './scenes/TitleScene';
+import { CinematicScene } from './scenes/CinematicScene';
+import { DojoScene } from './scenes/DojoScene';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -15,7 +17,7 @@ const game = new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [TitleScene, FightScene],
+  scene: [TitleScene, CinematicScene, FightScene, DojoScene],
 });
 
 // Dev only: lets tooling inspect the running game from the browser console.
