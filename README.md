@@ -45,6 +45,7 @@ Laboratorium pengujian karakter hasil pemotongan dan penulangan rig:
 | **Rahwana** | Prabu Dasamuka, raja raksasa Alengka berkepala sepuluh. | Siap Tanding |
 | **Jatayu** | Burung Garuda suci, ksatria angkasa pelindung Dewi Sinta. | Siap Tanding |
 | **Indrajit** | Megananda, putra mahkota Alengka sakti pemilik panah Nagapasa & Keris pusaka. | Siap Tanding |
+| **Yuyu Kangkang** | Raja Siluman Kepiting Samudera bercapit emas dan bersaput poleng. | Siap Tanding |
 
 ---
 

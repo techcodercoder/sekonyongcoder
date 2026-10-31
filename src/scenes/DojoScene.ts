@@ -15,7 +15,7 @@ const allCharacterPieces = import.meta.glob<string>('../assets/characters/*/*.pn
   import: 'default',
 });
 
-const AVAILABLE_CHARACTERS = ['hanoman', 'sugriwa', 'subali', 'rahwana', 'jatayu', 'indrajit'];
+const AVAILABLE_CHARACTERS = ['hanoman', 'sugriwa', 'subali', 'rahwana', 'jatayu', 'indrajit', 'yuyukangkang'];
 const STEP_MS = 1000 / GAME.fps;
 
 export class DojoScene extends Phaser.Scene {

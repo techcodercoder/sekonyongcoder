@@ -1,0 +1,45 @@
+{
+  "source": "assets-src/yuyukangkang-parts.jpg",
+  "outDir": "src/assets/characters/yuyukangkang",
+  "mirror": true,
+  "outputScale": 0.3,
+  "bgThreshold": 40,
+  "pieces": {
+    "torso": { "seed": [1048, 325] },
+    "head": { "seed": [285, 328] },
+    "frontUpper": {
+      "seed": [632, 399],
+      "drop": [[100, 545], [800, 545], [800, 1000], [100, 1000]]
+    },
+    "frontFore": { "seed": [1655, 284] },
+    "backUpper": {
+      "seed": [1458, 387],
+      "drop": [[1200, 490], [1800, 490], [1800, 1000], [1200, 1000]]
+    },
+    "backFore": { "seed": [1916, 283] },
+    "legFront": { "seed": [238, 1238] },
+    "legBack": { "seed": [601, 1237], "flip": true },
+    "tail": { "seed": [1628, 1891] },
+    "sashA": { "seed": [1034, 1752] },
+    "sashB": { "seed": [1239, 1721] }
+  },
+  "bones": [
+    { "name": "torso", "piece": "torso", "pivot": [1060, 680] },
+    { "name": "backUpper", "piece": "backUpper", "parent": "torso", "pivot": [1330, 210], "at": [1260, 200], "tip": [1550, 485] },
+    { "name": "backFore", "piece": "backFore", "parent": "backUpper", "pivot": [1900, 410], "at": [1550, 485], "tip": [1900, 70], "tuding": [1900, 70] },
+    { "name": "tail", "piece": "tail", "parent": "torso", "pivot": [1600, 1850], "at": [1180, 680] },
+    { "name": "legBack", "piece": "legBack", "parent": "torso", "pivot": [610, 1070], "at": [1160, 800], "angle": 10 },
+    { "name": "legFront", "piece": "legFront", "parent": "torso", "pivot": [230, 1070], "at": [940, 800], "angle": -10 },
+    { "name": "sashA", "piece": "sashA", "parent": "torso", "pivot": [1040, 1370], "at": [1050, 640] },
+    { "name": "sashB", "piece": "sashB", "parent": "torso", "pivot": [1240, 1390], "at": [1120, 640] },
+    { "name": "head", "piece": "head", "parent": "torso", "pivot": [230, 480], "at": [1050, 140] },
+    { "name": "frontUpper", "piece": "frontUpper", "parent": "torso", "pivot": [710, 250], "at": [850, 200], "tip": [570, 540] },
+    { "name": "frontFore", "piece": "frontFore", "parent": "frontUpper", "pivot": [1670, 410], "at": [570, 540], "tip": [1670, 70], "tuding": [1670, 70] }
+  ],
+  "points": {
+    "tailTip": { "bone": "tail", "at": [1900, 1200] },
+    "pincerTip": { "bone": "frontFore", "at": [1670, 70] }
+  },
+  "drawOrder": ["tail", "backUpper", "backFore", "legBack", "legFront", "torso", "sashA", "sashB", "head", "frontUpper", "frontFore"],
+  "previewPose": { "frontUpper": -80, "frontFore": -30, "backUpper": 100, "backFore": 20 }
+}
