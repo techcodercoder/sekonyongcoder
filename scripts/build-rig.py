@@ -64,9 +64,13 @@ def main(cfg_path, preview_path=None):
     for name, p in cfg["pieces"].items():
         mask = component(alpha, p["seed"])
         if "keep" in p:
-            mask = ImageChops.multiply(mask, polygon_mask(src.size, p["keep"]))
+            keeps = p["keep"] if isinstance(p["keep"][0][0], list) else [p["keep"]]
+            for k_poly in keeps:
+                mask = ImageChops.multiply(mask, polygon_mask(src.size, k_poly))
         if "drop" in p:
-            mask = ImageChops.subtract(mask, polygon_mask(src.size, p["drop"]))
+            drops = p["drop"] if isinstance(p["drop"][0][0], list) else [p["drop"]]
+            for d_poly in drops:
+                mask = ImageChops.subtract(mask, polygon_mask(src.size, d_poly))
         x0, y0, x1, y1 = mask.getbbox()
         img = src.copy()
         img.putalpha(mask)

@@ -175,13 +175,18 @@ Untuk pengujian dan simulasi karakter hasil pemotongan dan penulangan rig (*rig 
 - **Penyebab:** Jatayu berpostur burung garuda bersayap (bukan kera/humanoid), sehingga koordinat seed template lama mengenai area putih di luar potongan gambar.
 - **Resolusi:** Koordinat 11 potongan tubuh Jatayu (kepala, badan berzirah emas, sendi sayap, sayap utama kiri & kanan, cakar kaki depan & belakang, ekor merak kipas, dan selendang) berhasil dipetakan secara presisi pada `scripts/rigs/jatayu.json`. Skrip `build-rig.py` sukses menghasilkan `rig.json` dan 11 potongan wayang. Jatayu kini telah terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
 
+### 8.3 Konfigurasi & Perakitan Rig Indrajit (Megananda)
+- **Karakter:** Indrajit (Megananda), putra mahkota Alengka sakti bertubuh hitam legam/biru gelap, bersenjata panah Nagapasa dan Keris pusaka.
+- **Tantangan Ekstraksi:** Lembar gambar mentah `indrajit-parts.jpg` memiliki pose torso dengan kaki jongkok bawaan. Diperlukan masking poligon ganda pada bagian `drop` torso untuk memotong kaki jongkok kiri dan kanan, sehingga potongan kaki berdiri yang dapat bergerak (`legFront` dan `legBack`) dapat bersambung dengan alami di bawah dodot batik.
+- **Resolusi:** `scripts/build-rig.py` ditingkatkan agar mendukung array multi-poligon pada fitur `drop` dan `keep`. File `scripts/rigs/indrajit.json` berhasil diekstraksi menghasilkan 11 potongan transparan dan `rig.json`. Karakter Indrajit didaftarkan ke `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
+
 ---
 
 ## 9. Status & Ringkasan Pengerjaan (Implementation Status)
 
 | Komponen | Deskripsi | Status |
 | :--- | :--- | :--- |
-| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu diekstraksi & dirakit | Selesai |
+| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit diekstraksi & dirakit | Selesai |
 | **TitleScene UI Navigation** | Tombol navigasi Arcade Story, CPU, 2P, dan Dojo Rig | Selesai |
 | **Story Management Tool** | Script CLI admin interaktif (`npm run story:admin`) | Selesai |
 | **Data Contract (`story-config.json`)** | Skema konfigurasi babak cerita dan alur video | Selesai |
