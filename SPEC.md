@@ -1,9 +1,9 @@
-# SPEC: Ramayana Arcade Story Mode (Lakon 5 Babak)
+# SPEC: Ramayana Arcade Story Mode (Lakon 6 Babak Lengkap)
 
 ## 1. Ringkasan Eksekutif (Executive Summary)
-Mengembangkan game fighting *Hanoman Wayang* menjadi **Arcade Story Mode Epik Ramayana** yang menggabungkan pertarungan wayang kulit dengan elemen *Cinematic Interactive Movie*.
+Mengembangkan game fighting *Hanoman Wayang* menjadi **Arcade Story Mode Epik Ramayana** yang menggabungkan pertarungan wayang kulit dengan elemen *Cinematic Interactive Movie* dalam 6 babak wiracarita lengkap.
 
-Mode ini dapat diakses langsung dari tombol **[Arcade / Cerita Ramayana]** di menu depan (`TitleScene`). Setiap babak menyajikan alur sinematik terpadu: **Film Intro $\rightarrow$ Combat Babak $\rightarrow$ Film Episode Berikutnya**, dilengkapi mekanik pamungkas **Rage Combat Cutscene** dan sistem **Auto-Revive** agar pemain selalu dapat menyelesaikan kisah epos Ramayana hingga tuntas.
+Mode ini dapat diakses langsung dari tombol **[Arcade / Cerita Ramayana]** di menu depan (`TitleScene`). Setiap babak menyajikan alur sinematik terpadu: **Film Intro $\rightarrow$ Combat Babak $\rightarrow$ Film Episode Berikutnya**, dilengkapi mekanik pamungkas **Rage Combat Cutscene (Amuk Wayang)** untuk Player 1 dan CPU Dalang, sistem **Auto-Revive**, serta epilog budaya panggung terbuka **Sendratari Ramayana Prambanan** dengan QR Code reservasi tiket dinamis.
 
 ---
 
@@ -14,15 +14,19 @@ flowchart TD
     Title[TitleScene: Tombol Arcade Story / 1 CPU / 2 Versus] -->|Pilih Arcade Story| IntroVid[Scene Video: Film Intro Babak X]
     IntroVid --> PreFight[Prolog Suluk Dalang]
     PreFight --> Combat[Gameplay Combat Babak X]
-    Combat -- "HP P1 <= 50% + Tekan Tombol" --> RageVid[Scene Video: Rage Combat 1 atau 2 - 10 Detik]
-    RageVid --> ReturnCombat[Kembali ke Arena: Darah Lawan CPU -50%]
-    ReturnCombat --> Combat
-    Combat -- "P1 Kalah" --> AutoRevive[Auto-Revive: P1 Bangkit Kembali dengan Darah Penuh]
+    Combat -- "HP P1 <= 50% + Tekan Tombol" --> P1RageVid[Scene Video: Rage Combat P1 - 10 Detik]
+    P1RageVid --> ReturnCombatP1[Kembali ke Arena: Darah CPU -50%]
+    Combat -- "HP CPU <= 40% + Boss Phase" --> CPURageVid[Scene Video: Amuk Murka CPU - 10 Detik]
+    CPURageVid --> ReturnCombatCPU[Kembali ke Arena: Darah P1 -40%]
+    Combat -- "P1 Kalah Normal" --> AutoRevive[Auto-Revive: P1 Bangkit Kembali dengan Darah Penuh]
     AutoRevive --> Combat
+    Combat -- "Waktu Habis & Dalang Menang" --> DalangWin[Pengumuman Dalang Menang: Tekan J Ulang Babak X]
+    DalangWin -- "Tekan J" --> Combat
     Combat -- "CPU Lawan Kalah" --> OutroVid[Scene Video: Film Outro / Episode Berikutnya]
     OutroVid --> NextBabak{Ada Babak Berikutnya?}
-    NextBabak -- Ya --> IntroVid
-    NextBabak -- Tamat --> FinalVictory[Layar Paripurna: Kelir Ditutup Gunungan]
+    NextBabak -- Babak 1-5 --> IntroVid
+    NextBabak -- Selesai Babak 6 --> PromoScene[PrambananScene: Ajakan Sendratari & Dynamic QRCode]
+    PromoScene --> Title
 ```
 
 ---
@@ -37,54 +41,52 @@ flowchart TD
 - Dilengkapi animasi *scale pulse*, efek *hover*, dan navigasi keyboard (`ENTER` / `SPACE`).
 
 ### 3.2 Mekanik Sinematik Rage Combat (Amuk Wayang)
-- **Kondisi Aktif:** Darah karakter sebelah kiri (Player 1) mencapai $\le 50\%$.
-- **Trigger:** Pemain menekan tombol aksi apapun.
-- **Tampilan Cutscene:** Game mem-pause arena pertarungan, memutar cutscene video berdurasi $\pm 10$ detik secara acak antara:
-  - `rage_combat_1.mp4` / `WebM`
-  - `rage_combat_2.mp4` / `WebM`
-  *(Catatan: Disediakan fallback animasi kanvas jika file video belum diunggah).*
-- **Efek Pasca-Video:**
-  - Game kembali ke arena dengan posisi netral dan jeda aman 0.5 detik.
-  - Darah musuh di sebelah kanan (CPU) langsung berkurang **50%**.
-  - Flag amuk terkunci (hanya dapat digunakan 1 kali per ronde/babak untuk mencegah spam).
+- **Rage Combat Player 1 (Amuk Sakti):**
+  - **Kondisi Aktif:** Darah karakter sebelah kiri (Player 1) mencapai $\le 50\%$.
+  - **Trigger:** Pemain menekan tombol aksi apapun.
+  - **Efek:** Memotong darah lawan sebelah kanan (CPU) sebesar **50%**.
+  - Kuota: 1 kali per babak.
+- **Rage Combat CPU / Dalang (Amuk Murka):**
+  - **Kondisi Aktif:** Darah CPU mencapai $\le 40\%$ (*Boss Phase Threshold*).
+  - **Visual Telegraphing:** Peringatan visual berkedip merah dan getaran layar (*screen shake*) selama 1.25 detik sebelum video terpicu.
+  - **Efek:** Memotong darah Player 1 sebesar **40%**.
+  - Kuota: 1 kali per babak.
 
-### 3.3 Sistem Auto-Revive (Karakter P1 Hidup Kembali)
-- Mengingat cerita Ramayana harus berjalan sesuai takdir kemenangan kebajikan atas angkara murka, jika Player 1 dikalahkan oleh CPU:
-  - Karakter Player 1 tidak terkena Game Over.
-  - Terjadi efek suara genta/suluk kebangkitan; karakter P1 bangkit kembali (*auto-revive*), darah pulih ke 100%, disertai gelombang tolak (*pushback*) dan kekebalan 2 detik agar tidak terkena serangan beruntun.
+### 3.3 Sistem Auto-Revive & Rematch Preserving
+- **Auto-Revive P1:**
+  - Jika darah Player 1 habis oleh serangan normal CPU, P1 tidak langsung K.O.
+  - Terjadi efek suara kebangkitan; darah pulih ke 100%, disertai gelombang tolak (*pushback*) dan pemulihan posisi getup.
+- **Rematch Preserving State (Tombol `J`):**
+  - Jika Dalang memenangkan ronde waktu habis (*Time Out*), layar mengumumkan kemenangan Dalang.
+  - Menekan tombol `J` mengulang pertandingan pada babak yang sama (`chapterIndex`, karakter P1, dan CPU tetap terjaga), tanpa me-reset kembali ke Babak 1.
 
-### 3.4 Management Scene Sinematik (Video Cutscenes)
-- Format Scene terpisah (`CinematicScene`) yang menangani:
-  - Pemutaran video layar penuh / aspect ratio terjaga.
-  - Tombol **[Space / Klik] Skip** untuk kenyamanan replayability.
-  - Transisi halus fade to black / gunungan kelir sebelum dan sesudah video.
+### 3.4 Layar Budaya Sendratari Ramayana Prambanan (`PrambananScene.ts`)
+- **Pemicu:** Ditampilkan otomatis setelah video outro Babak 6 (`outro_episode_6.mp4`) selesai diputar.
+- **Komponen Visual:**
+  - Latar gelap teatrikal (`0x0c0704`) dengan bingkai ornamen emas bertingkat dan aksen sudut ukiran Jawa.
+  - Badge pill: `🏛️ SENDRATARI RAMAYANA PRAMBANAN`.
+  - Headline utama: *"Kamu Sudah Memainkannya. Sekarang, Duduklah dan Saksikan Mereka Menari."*
+  - Narasi puitis anti-AI slop yang mengajak pemain menyaksikan pertunjukan panggung terbuka Ramayana sejak 1961 di Candi Prambanan.
+  - Dynamic QR Code berbasis library `qrcode` yang dirender ke CanvasTexture mengarah ke `https://injourneydestination.id/`.
+  - Tombol interaktif klik langsung `🌐 Buka injourneydestination.id ↗` untuk reservasi tiket di browser.
+  - Tombol shortcut `[ SPASI / ENTER / ESC / KLIK ]` untuk kembali ke Menu Utama.
 
 ---
 
-## 4. Sistem Manajemen Narasi Cerita (Story Management Admin Tool)
+## 4. Sistem Manajemen Narasi Cerita (`scripts/story-manager.py`)
 
-Untuk memudahkan admin mengatur jumlah babak, karakter bertanding, dan video intro/outro, disediakan tool CLI interaktif:
-
-### 4.1 Perintah Eksekusi
+Tool CLI interaktif untuk admin/dalang mengelola alur cerita:
 ```bash
 npm run story:admin
 # atau: python scripts/story-manager.py
 ```
 
-### 4.2 Alur Pertanyaan Interaktif Admin:
-1. **Pertanyaan 1 (Jumlah Scene):**
-   - Menanyakan berapa total scene combat yang ingin dijalankan (contoh: 2 babak atau 5 babak).
-2. **Pertanyaan 2 (Karakter Combat per Babak):**
-   - **Karakter Player 1 (Sebelah Kiri):** Menampilkan daftar nomor karakter yang siap tayang yang dipindai otomatis dari folder `src/assets/characters/`.
-   - **Karakter CPU (Sebelah Kanan):** Menampilkan daftar nomor karakter siap tayang yang sama untuk dipilih oleh admin.
-3. **Pertanyaan 3 (File Video Sinematik per Babak):**
-   - **Film INTRO:** Memilih dari video yang ada di folder `public/videos/` atau mengetik nama file video kustom.
-   - **Film OUTRO / Episode Berikutnya:** Memilih video outro babak.
-   - **Film Rage Combat 1 & 2:** Mengonfirmasi file video amuk 10 detik.
-
-### 4.3 Target Penyimpanan Data
-Tool ini otomatis menulis dan memvalidasi file:
-- **`src/data/story-config.json`**
+### 4.1 Fitur Story Manager:
+1. Menentukan total scene combat.
+2. Memilih karakter P1 dan CPU dari daftar karakter siap tayang di `src/assets/characters/`.
+3. Memilih file video intro, outro, variasi video amuk P1, dan video amuk CPU.
+4. Mengatur parameter promosi Sendratari Prambanan (URL QRCode, badge, headline, CTA).
+5. Menyimpan konfigurasi ke `src/data/story-config.json`.
 
 ---
 
@@ -92,129 +94,61 @@ Tool ini otomatis menulis dan memvalidasi file:
 
 ```json
 {
-  "totalChapters": 2,
+  "totalChapters": 6,
   "chapters": [
     {
       "chapterIndex": 1,
       "title": "Aliansi Kiskenda",
-      "subtitle": "Hutan Gua Kiskenda",
+      "subtitle": "Sugriwa vs Subali",
       "player1": "sugriwa",
       "cpu": "subali",
       "introVideo": "/videos/intro_babak_1.mp4",
       "outroVideo": "/videos/outro_babak_1.mp4",
-      "rageVideos": [
-        "/videos/rage_combat_1.mp4",
-        "/videos/rage_combat_2.mp4"
-      ]
-    },
-    {
-      "chapterIndex": 2,
-      "title": "Penculikan Sinta",
-      "subtitle": "Langit Hutan Dandaka",
-      "player1": "jatayu",
-      "cpu": "rahwana",
-      "introVideo": "/videos/intro_babak_2.mp4",
-      "outroVideo": "/videos/outro_babak_2.mp4",
-      "rageVideos": [
-        "/videos/rage_combat_1.mp4",
-        "/videos/rage_combat_2.mp4"
+      "playerRageVideos": [
+        "/videos/combo_1_sugriwa_ke_subali.mp4",
+        "/videos/combo_2_sugriwa_ke_subali.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo1_subali.mp4"
       ]
     }
-  ]
+  ],
+  "prambananPromo": {
+    "enabled": true,
+    "badge": "SENDRATARI RAMAYANA PRAMBANAN",
+    "headline": "Kamu Sudah Memainkannya.\nSekarang, Duduklah dan Saksikan Mereka Menari.",
+    "bodyText": "Menggerakkan Hanoman melompati kelir layar hanyalah permulaan...\n\nHadir dan jadilah saksi langsung epik terbesar tanah Jawa di panggung terbuka termegah nusantara.",
+    "ctaText": "Pindai untuk reservasi kursi pertunjukan via injourneydestination.id",
+    "qrUrl": "https://injourneydestination.id/"
+  }
 }
 ```
 
 ---
 
-## 6. Mitigasi Risiko & Keamanan Teknis
+## 6. Pengujian Otomatis (Automated Unit Testing)
 
-1. **Autoplay Policy Browser:** Scene video dijalankan setelah pemain berinteraksi dengan tombol menu utama.
-2. **Asset Missing Fallback:** Jika file video di `public/videos/` belum ada di disk, `CinematicScene` otomatis menampilkan kartu animasi wayang sinematik dinamis dengan teks narasi dramatis selama 5-10 detik agar game tidak macet atau crash.
-3. **State Protection:** Saat cutscene diputar, logic loop `FightScene` di-pause (`scene.pause()`), semua input dinonaktifkan, dan timer hit-stop dibekukan.
-4. **Encoding Aman Terminal Windows:** Script `story-manager.py` dikonfigurasi dengan UTF-8 fallback agar kompatibel di PowerShell Windows tanpa `UnicodeEncodeError`.
-
----
-
-## 7. Fitur Dojo & Rig Simulator Lab
-
-Untuk pengujian dan simulasi karakter hasil pemotongan dan penulangan rig (*rig building*), disediakan scene khusus **Dojo Uji Coba Rig** (`DojoScene.ts`) yang dapat diakses langsung dari menu utama:
-
-### 7.1 Fitur Dojo:
-1. **Interactive Movement & Combat Sandbox (Opsi 1):**
-   - Mengendalikan karakter secara real-time dengan kendali pemain (gerak kiri/kanan, lompat, tangkis, pukul, tendang).
-   - Memilih karakter target/boneka latih (Dummy AI) dengan berbagai mode perilaku:
-     - `Idle`: Boneka diam di tempat.
-     - `Guard`: Boneka selalu menangkis.
-     - `Aggressive`: Boneka aktif menyerang untuk menguji responsifitas *hurtbox* dan *hitbox*.
-   - **Tampilan Debug Hitbox & Skeleton (Tombol `H`):** Menampilkan garis kerangka sendi wayang (*joint pivots*) dan kotak deteksi pukulan/tendangan secara transparan.
-
-2. **Live Joint Angle Tuning Sliders (Opsi 2):**
-   - Panel slider DOM di pojok kanan atas untuk memutar sudut sendi secara presisi:
-     - Kepala (*Head*)
-     - Lengan Atas Depan & Belakang (*Upper Arms*)
-     - Lengan Bawah Depan & Belakang (*Forearms*)
-     - Kaki (*Legs*)
-   - Memudahkan kalibrasi visual pivot tanpa perlu bolak-balik mengubah angka di file JSON.
-
-3. **Instant Character Switcher:**
-   - Tombol shortcut `C` atau tombol antarmuka untuk mengganti karakter uji (Hanoman, Sugriwa, Subali, Rahwana) secara instan di arena.
+Suite pengujian otomatis dikembangkan di `tests/arcade-flow.test.ts` dan dijalankan dengan:
+```bash
+npm test
+```
+Cakupan test suite:
+1. **Rematch Babak 3**: Memastikan tombol `J` setelah Dalang menang tetap mempertahankan Babak 3 (Hanoman vs Indrajit) dan skor reset ke 0-0.
+2. **Progresi Babak**: Memastikan kemenangan P1 di Babak 3 memutar outro babak 3 dan lanjut ke Babak 4 (Laksmana vs Yuyukangkang).
+3. **Epilog Prambanan**: Memastikan kemenangan P1 di Babak 6 mengarah ke `PrambananScene`.
+4. **Auto-Revive**: Memastikan P1 pulih 1000 HP saat darah menyentuh 0 di mode Arcade.
 
 ---
 
-## 8. Catatan Perbaikan Rig Karakter (Rig Fixing Log)
-
-### 8.1 Perbaikan Lengan Sugriwa (Double / 4 Arms Bug)
-- **Gejala:** Karakter Sugriwa tampak memiliki 4 lengan saling menyilang saat berdiri dan menyerang.
-- **Penyebab:** Pada file `sugriwa-parts.jpg`, lengan atas dan lengan bawah bersentuhan pada siku. Karena file `scripts/rigs/sugriwa.json` awalnya belum memiliki poligon pembatas (`keep` dan `drop`) di area siku, algoritma pemotong otomatis menyalin seluruh lengan utuh ke dalam `frontUpper.png` sekaligus `frontFore.png`. Ketika engine menempelkan lengan bawah ke siku lengan atas, lengan utuh menempel pada lengan utuh lainnya.
-- **Resolusi:** Koordinat poligon pembatas siku ditambahkan ke `scripts/rigs/sugriwa.json`, dan script `build-rig.py` dijalankan ulang sehingga potongan lengan terpisah sempurna (~13-14 KB per ruas).
-
----
-
-### 8.2 Penyelesaian Rig Jatayu (Garuda Wing Rigging)
-- **Gejala:** Karakter Jatayu awalnya tidak muncul di daftar pilihan Dojo dan sempat gagal diekstraksi.
-- **Penyebab:** Jatayu berpostur burung garuda bersayap (bukan kera/humanoid), sehingga koordinat seed template lama mengenai area putih di luar potongan gambar.
-- **Resolusi:** Koordinat 11 potongan tubuh Jatayu (kepala, badan berzirah emas, sendi sayap, sayap utama kiri & kanan, cakar kaki depan & belakang, ekor merak kipas, dan selendang) berhasil dipetakan secara presisi pada `scripts/rigs/jatayu.json`. Skrip `build-rig.py` sukses menghasilkan `rig.json` dan 11 potongan wayang. Jatayu kini telah terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
-
-### 8.3 Konfigurasi & Perakitan Rig Indrajit (Megananda)
-- **Karakter:** Indrajit (Megananda), putra mahkota Alengka sakti bertubuh hitam legam/biru gelap, bersenjata panah Nagapasa dan Keris pusaka.
-- **Tantangan Ekstraksi:** Lembar gambar mentah `indrajit-parts.jpg` memiliki pose torso dengan kaki jongkok bawaan. Diperlukan masking poligon ganda pada bagian `drop` torso untuk memotong kaki jongkok kiri dan kanan, sehingga potongan kaki berdiri yang dapat bergerak (`legFront` dan `legBack`) dapat bersambung dengan alami di bawah dodot batik.
-- **Resolusi:** `scripts/build-rig.py` ditingkatkan agar mendukung array multi-poligon pada fitur `drop` dan `keep`. File `scripts/rigs/indrajit.json` berhasil diekstraksi menghasilkan 11 potongan transparan dan `rig.json`. Karakter Indrajit didaftarkan ke `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
-
-### 8.4 Konfigurasi & Perakitan Rig Yuyu Kangkang (Raja Kepiting Samudera)
-- **Karakter:** Yuyu Kangkang, raksasa siluman ketam/kepiting penguasa samudera berkulit merah keunguan dengan mata melotot liar, taring tajam, zirah berusuk cangkang berduri, kain saput poleng catur, dan capit kepiting emas raksasa (*supit*).
-- **Mekanik Khusus Anggota Tubuh:** Bagian lengan bawah (`frontFore` dan `backFore`) dirakit langsung menggunakan capit kepiting raksasa (*Crab Pincers*). Ketika melancarkan serangan pukulan atau combo, capit kepiting mencengkeram ke depan dengan jangkauan luas. Bagian ekor (`tail`) menggunakan sulur lengkung capit belakang.
-- **Resolusi:** File `scripts/rigs/yuyukangkang.json` memisahkan lengan atas dari lengan bawah di area siku, menautkan capit kepiting ke sendi siku, dan menghasilkan 11 potongan transparan serta `rig.json`. Yuyu Kangkang terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
-
-### 8.5 Konfigurasi & Perakitan Rig Raden Laksmana (Ksatria Pemanah Ayodhya)
-- **Karakter:** Raden Laksmana (Lakshmana), ksatria alusan lanyap adik Prabu Rama, berparas tampan dengan mahkota supit urang/gelung kelinci dan garuda mungkur, kulit kuning langsat keemasan, berbusana dodot batik parang ksatria, bersenjata busur panah sakti Gandewa dan tabung anak panah.
-- **Mekanik Khusus Anggota Tubuh:** Dilengkapi busur panah naga sakti Gandewa (`sashB`) dan selongsong anak panah (`sashA`) yang tersampir di punggung ksatria, serta selendang merah emas sampur keraton (`tail`) yang berkibar anggun.
-- **Resolusi:** Lembar potongan `assets-src/laksmana-parts.jpg` diekstraksi dengan `outputScale: 1.2` dan `bgSeeds` pada rongga busur panah, menghasilkan 11 potongan transparan dan `rig.json`. Karakter Raden Laksmana terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
-
-### 8.7 Konfigurasi & Perakitan Rig Prabu Rama (Titisan Batara Wisnu / Pangeran Ayodhya)
-- **Karakter:** Sri Rama Wijaya (Prabu Rama), ksatria agung luruh lanyap bermahkota supit urang mas, berkulit biru/hijau toska keemasan, berbusana dodot batik parang ksatria dengan praba persilangan dada pusaka, dan bersenjata busur panah sakti Gandiwa.
-- **Konfigurasi Teknis:**
-  - File potongan sumber: `assets-src/rama-parts.jpg` (2048x2048)
-  - Parameter rig: `mirror: true` dengan `flip: true` pada kepala (untuk menjaga arah pandang hadap kanan selaras dengan tubuh dan langkah kaki), `outputScale: 0.32`, floodfill `bgSeeds` pada rongga supit urang, lekukan dodot teardrop, dan rongga jari tangan.
-  - Sumbu sendi & tulang: Menggunakan pembagian lengan atas/bawah bertumpang tindih halus (*smooth overlapping caps*) dengan busur panah sakti Gandiwa (`tail`) tersemat elegan di punggung.
-- **Resolusi:** `scripts/rigs/rama.json` sukses menghasilkan 11 potongan transparan dan `rig.json`. Prabu Rama terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
-
-### 8.6 Konfigurasi & Perakitan Rig Kumbakarna (Raksasa Agung Alengka)
-- **Karakter:** Raden Kumbakarna, ksatria raksasa agung bertubuh raksasa merah legam berbulu lebat, berparas menyeramkan dengan taring mencuat dan mata mendelik namun berhati luhur membela tanah air, berbusana dodot batik parang, bersaput poleng catur, berornamen praba sayap kelelawar emas, dan bersenjata gada pusaka raksasa.
-- **Mekanik Khusus Anggota Tubuh:** Memotong kaki jongkok bawaan pada sisi torso menggunakan multi-polygon drop masking, memisahkan lengan atas berbulu dan lengan bawah bergelang emas, serta menautkan gada pusaka raksasa (`sashB`) di pinggang ksatria raksasa.
-- **Resolusi:** `scripts/rigs/kumbakarna.json` sukses menghasilkan 11 potongan transparan dan `rig.json`. Kumbakarna terdaftar di `Fighter.ts`, `DojoScene.ts`, serta Admin Story Manager.
-
----
-
-## 9. Status & Ringkasan Pengerjaan (Implementation Status)
+## 7. Status & Ringkasan Pengerjaan
 
 | Komponen | Deskripsi | Status |
 | :--- | :--- | :--- |
-| **Assets & Rig Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit, Yuyu Kangkang, Laksmana, Kumbakarna, Rama diekstraksi & dirakit | Selesai |
-| **TitleScene UI Navigation** | Tombol navigasi Arcade Story, CPU, 2P, dan Dojo Rig | Selesai |
-| **Story Management Tool** | Script CLI admin interaktif (`npm run story:admin`) | Selesai |
-| **Data Contract (`story-config.json`)** | Skema konfigurasi babak cerita dan alur video | Selesai |
-| **Dynamic Fighter Rig Loader** | Mendukung pemuatan karakter lawan/pemain dinamis | Selesai |
-| **CinematicScene & Rage Combat** | Scene video, kartu sinematik dramatis fallback, dan mekanik rage amuk | Selesai |
-| **Auto-Revive Mechanic** | Mekanisme bangkit kembali saat P1 kalah di story mode | Selesai |
+| **Assets & Rig 10 Karakter** | Hanoman, Sugriwa, Subali, Rahwana, Jatayu, Indrajit, Yuyu Kangkang, Laksmana, Kumbakarna, Rama | Selesai |
+| **Alur 6 Babak Cerita** | 6 babak sinematik epos Ramayana lengkap | Selesai |
+| **CPU Rage Combat** | Boss phase amuk Dalang pada HP $\le 40\%$ | Selesai |
+| **Prambanan Promo Scene** | Epilog budaya, copywriting anti-AI slop, dynamic QR Code | Selesai |
+| **Rematch Bugfix** | Preservasi babak saat tombol `J` ditekan | Selesai |
+| **Automated Test Suite** | 4 unit test alur cerita lolos 100% | Selesai |
 | **Dojo Rig Simulator Lab** | Pengujian kombat, AI dummy, visualizer hitbox (`H`), & slider sendi | Selesai |
-| **Sugriwa Rig Masking Fix** | Koreksi pemisah sendi siku sehingga lengan tidak dobel | Selesai |

@@ -1,18 +1,155 @@
 {
-  "totalChapters": 1,
+  "totalChapters": 6,
   "chapters": [
     {
       "chapterIndex": 1,
-      "title": "default",
-      "subtitle": "default",
-      "player1": "jatayu",
-      "cpu": "rahwana",
+      "title": "Aliansi Kiskenda",
+      "subtitle": "Sugriwa vs Subali",
+      "player1": "sugriwa",
+      "cpu": "subali",
       "introVideo": "/videos/intro_babak_1.mp4",
-      "outroVideo": "/videos/closing_babak1.mp4",
+      "outroVideo": "/videos/outro_babak_1.mp4",
+      "playerRageVideos": [
+        "/videos/combo_1_sugriwa_ke_subali.mp4",
+        "/videos/combo_2_sugriwa_ke_subali.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo1_subali.mp4"
+      ],
       "rageVideos": [
-        "/videos/2",
-        "/videos/3"
+        "/videos/combo_1_sugriwa_ke_subali.mp4",
+        "/videos/combo_2_sugriwa_ke_subali.mp4",
+        "/videos/combo1_subali.mp4"
+      ]
+    },
+    {
+      "chapterIndex": 2,
+      "title": "Penculikan Shinta di Hutan Dandaka",
+      "subtitle": "Jatayu Vs Rahwana",
+      "player1": "rahwana",
+      "cpu": "jatayu",
+      "introVideo": "/videos/intro_babak_2.mp4",
+      "outroVideo": "/videos/outro_babak_2.mp4",
+      "playerRageVideos": [
+        "/videos/combo_1_rahwana_jatayu.mp4",
+        "/videos/combo_2_rahwana_jatayu.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo_1_jatayu_rahwana.mp4",
+        "/videos/combo_2_jatayu_rahwana.mp4"
+      ],
+      "rageVideos": [
+        "/videos/combo_1_rahwana_jatayu.mp4",
+        "/videos/combo_2_rahwana_jatayu.mp4",
+        "/videos/combo_1_jatayu_rahwana.mp4",
+        "/videos/combo_2_jatayu_rahwana.mp4"
+      ]
+    },
+    {
+      "chapterIndex": 3,
+      "title": "Anoman Obong",
+      "subtitle": "Anoman Vs Indrajit",
+      "player1": "hanoman",
+      "cpu": "indrajit",
+      "introVideo": "/videos/intro_episode_3.mp4",
+      "outroVideo": "/videos/outro_episode_3.mp4",
+      "playerRageVideos": [
+        "/videos/combo_1_hanoman_indrajit.mp4",
+        "/videos/combo_2_hanoman_indrajit.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo_1_indrajit_hanoman.mp4",
+        "/videos/combo_2_indrajit_hanoman.mp4"
+      ],
+      "rageVideos": [
+        "/videos/combo_1_hanoman_indrajit.mp4",
+        "/videos/combo_2_hanoman_indrajit.mp4",
+        "/videos/combo_1_indrajit_hanoman.mp4",
+        "/videos/combo_2_indrajit_hanoman.mp4"
+      ]
+    },
+    {
+      "chapterIndex": 4,
+      "title": "Pembangunan Tambak Samudra",
+      "subtitle": "Laksmana Vs Yuyukangkang",
+      "player1": "laksmana",
+      "cpu": "yuyukangkang",
+      "introVideo": "/videos/intro_episode_4.mp4",
+      "outroVideo": "/videos/outro_episode_4.mp4",
+      "playerRageVideos": [
+        "/videos/combo_1_laksaman_yuyukangkang.mp4",
+        "/videos/combo_2_laksaman_yuyukangkang.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo_1_yuyukangkang_laksmana.mp4",
+        "/videos/combo_2_yuyukangkang_laksmana.mp4"
+      ],
+      "rageVideos": [
+        "/videos/combo_1_laksaman_yuyukangkang.mp4",
+        "/videos/combo_2_laksaman_yuyukangkang.mp4",
+        "/videos/combo_1_yuyukangkang_laksmana.mp4",
+        "/videos/combo_2_yuyukangkang_laksmana.mp4"
+      ]
+    },
+    {
+      "chapterIndex": 5,
+      "title": "Perang Puncak Alengka",
+      "subtitle": "Rama Vs Kumbokarno",
+      "player1": "rama",
+      "cpu": "kumbakarna",
+      "introVideo": "/videos/intro_episode_5.mp4",
+      "outroVideo": "/videos/outro_episode_5.mp4",
+      "playerRageVideos": [
+        "/videos/combo_1_rama_kumbakarna.mp4",
+        "/videos/combo_2_rama_kumbakarna.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo_1_kumbakarna_rama.mp4",
+        "/videos/combo_2_kumbakarna_rama.mp4"
+      ],
+      "rageVideos": [
+        "/videos/combo_1_rama_kumbakarna.mp4",
+        "/videos/combo_2_rama_kumbakarna.mp4",
+        "/videos/combo_1_kumbakarna_rama.mp4",
+        "/videos/combo_2_kumbakarna_rama.mp4"
+      ]
+    },
+    {
+      "chapterIndex": 6,
+      "title": "Final Round",
+      "subtitle": "Rama Vs Rahwana",
+      "player1": "rama",
+      "cpu": "rahwana",
+      "introVideo": "/videos/intro_episode_6.mp4",
+      "outroVideo": "/videos/outro_episode_6.mp4",
+      "playerRageVideos": [
+        "/videos/combo_1_rama_rahwana.mp4",
+        "/videos/combo_2_rama_rahwana.mp4"
+      ],
+      "cpuRageEnabled": true,
+      "cpuRageVideos": [
+        "/videos/combo_1_rahwana_rama.mp4",
+        "/videos/combo_2_rahwana_rama.mp4"
+      ],
+      "rageVideos": [
+        "/videos/combo_1_rama_rahwana.mp4",
+        "/videos/combo_2_rama_rahwana.mp4",
+        "/videos/combo_1_rahwana_rama.mp4",
+        "/videos/combo_2_rahwana_rama.mp4"
       ]
     }
-  ]
+  ],
+  "prambananPromo": {
+    "enabled": true,
+    "badge": "SENDRATARI RAMAYANA PRAMBANAN",
+    "headline": "Kamu Sudah Memainkannya.\nSekarang, Duduklah dan Saksikan Mereka Menari.",
+    "bodyText": "Menggerakkan Hanoman melompati kelir layar hanyalah permulaan.\n\nDi pelataran Candi Prambanan, kisah ini dipentaskan tanpa sepatah kata pun—hanya tatapan mata ksatria, ayunan pedang raksasa, dan gemuruh kendang yang mengunci ratusan pasang mata penonton dunia sejak 1961.\n\nHadir dan jadilah saksi langsung epik terbesar tanah Jawa di panggung terbuka termegah nusantara.",
+    "ctaText": "Pindai untuk reservasi kursi pertunjukan via injourneydestination.id",
+    "qrUrl": "https://injourneydestination.id/"
+  }
 }

@@ -55,17 +55,21 @@ def get_available_videos():
     return sorted(videos)
 
 
-def choose_from_list(prompt_text, items, allow_custom=False):
+def choose_from_list(prompt_text, items, allow_custom=False, default_idx=None):
     """Menampilkan pilihan bernomor ke terminal dan mengembalikan item yang dipilih."""
     print(f"\n{prompt_text}")
     for idx, item in enumerate(items, 1):
-        print(f"  [{idx}] {item}")
+        suffix = " (default)" if default_idx == idx else ""
+        print(f"  [{idx}] {item}{suffix}")
     if allow_custom:
         print(f"  [0] Ketik nama file sendiri secara manual")
 
     while True:
         try:
-            choice = input("Pilih nomor: ").strip()
+            hint = f" [default: {default_idx}]" if default_idx is not None else ""
+            choice = input(f"Pilih nomor{hint}: ").strip()
+            if not choice and default_idx is not None and 1 <= default_idx <= len(items):
+                return items[default_idx - 1]
             if allow_custom and choice == "0":
                 custom = input("Masukkan nama file video (contoh: babak1.mp4): ").strip()
                 if custom:
@@ -92,6 +96,24 @@ def prompt_text(label, default=""):
             if res:
                 return res
             print("Nilai tidak boleh kosong.")
+
+
+def prompt_yes_no(label, default=True):
+    """Input pertanyaan Yes/No."""
+    hint = "Y/n" if default else "y/N"
+    while True:
+        try:
+            res = input(f"{label} [{hint}]: ").strip().lower()
+            if not res:
+                return default
+            if res in ["y", "yes", "ya", "1"]:
+                return True
+            if res in ["n", "no", "tidak", "0"]:
+                return False
+            print("Harap ketik 'y' atau 'n'.")
+        except (KeyboardInterrupt, EOFError):
+            print("\nProses dibatalkan.")
+            sys.exit(0)
 
 
 def main():
@@ -180,9 +202,54 @@ def main():
         else:
             outro_file = prompt_text("Nama File Film OUTRO (di folder public/videos/)", default_outro)
 
-        # Film Rage Combat (default 1 & 2)
-        rage_1 = prompt_text("File Video Rage Combat 1", "rage_combat_1.mp4")
-        rage_2 = prompt_text("File Video Rage Combat 2", "rage_combat_2.mp4")
+        # Film Rage Combat Player 1
+        print(f"\n[RAGE COMBAT] Konfigurasi Amuk Wayang Babak {i}:")
+        if videos:
+            p1_rage_1 = choose_from_list(
+                f"Pilih File Video Amuk / Rage Combat PLAYER 1 ({p1.upper()}) Babak {i}:",
+                videos,
+                default_idx=1,
+                allow_custom=True
+            )
+            p1_rage_vids = [p1_rage_1]
+            if len(videos) > 1 and prompt_yes_no(f"Tambah variasi video Amuk kedua untuk PLAYER 1 ({p1.upper()})?", default=False):
+                p1_rage_2 = choose_from_list(
+                    f"Pilih Video Amuk PLAYER 1 Variasi 2:",
+                    videos,
+                    default_idx=2 if len(videos) > 1 else 1,
+                    allow_custom=True
+                )
+                p1_rage_vids.append(p1_rage_2)
+        else:
+            p1_rage_1 = prompt_text(f"File Video Amuk PLAYER 1 ({p1.upper()})", "combo_1_sugriwa_ke_subali.mp4")
+            p1_rage_vids = [p1_rage_1]
+
+        # Film Rage Combat CPU (Dalang)
+        cpu_rage_enabled = prompt_yes_no(f"Aktifkan fitur Amuk Murka untuk CPU ({cpu.upper()}) di Babak {i}?", default=True)
+        cpu_rage_vids = []
+        if cpu_rage_enabled:
+            if videos:
+                cpu_rage_1 = choose_from_list(
+                    f"Pilih File Video Amuk / Rage Combat CPU ({cpu.upper()}) Babak {i}:",
+                    videos,
+                    default_idx=2 if len(videos) > 1 else 1,
+                    allow_custom=True
+                )
+                cpu_rage_vids = [cpu_rage_1]
+                if len(videos) > 1 and prompt_yes_no(f"Tambah variasi video Amuk kedua untuk CPU ({cpu.upper()})?", default=False):
+                    cpu_rage_2 = choose_from_list(
+                        f"Pilih Video Amuk CPU Variasi 2:",
+                        videos,
+                        default_idx=1,
+                        allow_custom=True
+                    )
+                    cpu_rage_vids.append(cpu_rage_2)
+            else:
+                cpu_rage_1 = prompt_text(f"File Video Amuk CPU ({cpu.upper()})", "combo_2_sugriwa_ke_subali.mp4")
+                cpu_rage_vids = [cpu_rage_1]
+
+        def format_vids(v_list):
+            return [f"/videos/{v}" if not v.startswith("/") else v for v in v_list]
 
         chapter_data = {
             "chapterIndex": i,
@@ -192,19 +259,53 @@ def main():
             "cpu": cpu,
             "introVideo": f"/videos/{intro_file}" if not intro_file.startswith("/") else intro_file,
             "outroVideo": f"/videos/{outro_file}" if not outro_file.startswith("/") else outro_file,
-            "rageVideos": [
-                f"/videos/{rage_1}" if not rage_1.startswith("/") else rage_1,
-                f"/videos/{rage_2}" if not rage_2.startswith("/") else rage_2
-            ]
+            "playerRageVideos": format_vids(p1_rage_vids),
+            "cpuRageEnabled": cpu_rage_enabled,
+            "cpuRageVideos": format_vids(cpu_rage_vids),
+            "rageVideos": format_vids(p1_rage_vids + cpu_rage_vids)
         }
         chapters.append(chapter_data)
         print(f"[OK] Babak {i} ({title}: {p1} vs {cpu}) berhasil dikonfigurasi!")
+
+    # Baca konfigurasi lama jika ada untuk mempertahankan prambananPromo
+    existing_promo = {}
+    if CONFIG_FILE.exists():
+        try:
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                old_data = json.load(f)
+                existing_promo = old_data.get("prambananPromo", {})
+        except Exception:
+            pass
+
+    print("\n" + "=" * 50)
+    print("[HALAMAN PROMOSI SENDRATARI RAMAYANA PRAMBANAN]")
+    print("=" * 50)
+    default_promo = {
+        "enabled": True,
+        "badge": "SENDRATARI RAMAYANA PRAMBANAN",
+        "headline": "Kamu Sudah Memainkannya.\nSekarang, Duduklah dan Saksikan Mereka Menari.",
+        "bodyText": "Menggerakkan Hanoman melompati kelir layar hanyalah permulaan.\n\nDi pelataran Candi Prambanan, kisah ini dipentaskan tanpa sepatah kata pun—hanya tatapan mata ksatria, ayunan pedang raksasa, dan gemuruh kendang yang mengunci ratusan pasang mata penonton dunia sejak 1961.\n\nHadir dan jadilah saksi langsung epik terbesar tanah Jawa di panggung terbuka termegah nusantara.",
+        "ctaText": "Pindai untuk reservasi kursi pertunjukan via injourneydestination.id",
+        "qrUrl": "https://injourneydestination.id/"
+    }
+    promo = existing_promo if existing_promo else default_promo
+
+    promo_enabled = prompt_yes_no("Aktifkan Halaman Promosi Sendratari Prambanan di akhir Arcade?", default=promo.get("enabled", True))
+    promo["enabled"] = promo_enabled
+
+    if promo_enabled:
+        if prompt_yes_no("Apakah ingin menyesuaikan URL QRCode atau teks ajakan?", default=False):
+            promo["badge"] = prompt_text("Badge / Label", promo.get("badge", default_promo["badge"]))
+            promo["headline"] = prompt_text("Headline Utama", promo.get("headline", default_promo["headline"]))
+            promo["qrUrl"] = prompt_text("URL Tujuan QRCode", promo.get("qrUrl", default_promo["qrUrl"]))
+            promo["ctaText"] = prompt_text("Teks Ajakan CTA", promo.get("ctaText", default_promo["ctaText"]))
 
     # Simpan ke src/data/story-config.json
     CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
     full_config = {
         "totalChapters": len(chapters),
-        "chapters": chapters
+        "chapters": chapters,
+        "prambananPromo": promo
     }
 
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
@@ -220,7 +321,11 @@ def main():
         print(f"    - Laga: {ch['player1']} (P1 Kiri) VS {ch['cpu']} (CPU Kanan)")
         print(f"    - Intro Film: {ch['introVideo']}")
         print(f"    - Outro Film: {ch['outroVideo']}")
-        print(f"    - Rage Videos: {', '.join(ch['rageVideos'])}")
+        print(f"    - P1 Amuk Videos: {', '.join(ch.get('playerRageVideos', ch.get('rageVideos', [])))}")
+        cpu_enabled = ch.get('cpuRageEnabled', True)
+        print(f"    - CPU Amuk: {'Aktif' if cpu_enabled else 'Nonaktif'}")
+        if cpu_enabled and ch.get('cpuRageVideos'):
+            print(f"    - CPU Amuk Videos: {', '.join(ch['cpuRageVideos'])}")
         print()
 
 

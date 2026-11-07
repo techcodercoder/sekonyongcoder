@@ -6,7 +6,7 @@ import { pieceKey } from '../entities/Puppet';
 import { AIController } from '../systems/AIController';
 import { Effects } from '../systems/Effects';
 import { Hud } from '../systems/Hud';
-import { KEYMAPS, KeyboardController, NO_INPUT, type Controller, type InputState } from '../systems/InputController';
+import { GamepadController, NO_INPUT, type Controller, type InputState } from '../systems/InputController';
 import { Lighting } from '../systems/Lighting';
 
 const allCharacterPieces = import.meta.glob<string>('../assets/characters/*/*.png', {
@@ -61,15 +61,29 @@ export class DojoScene extends Phaser.Scene {
 
     this.createDomOverlay();
 
-    this.input.keyboard!.on('keydown-ESC', () => {
-      this.cleanupDom();
-      this.scene.start('TitleScene');
-    });
+    // Exclusively Gamepad-driven
+    const bindDojoPad = (pad: Phaser.Input.Gamepad.Gamepad) => {
+      pad.on('down', (btn: number) => {
+        // Button 8 (Select/Back) -> Exit to title
+        if (btn === 8) {
+          this.cleanupDom();
+          this.scene.start('TitleScene');
+        }
+        // Button 3 (Triangle) or Button 11 (R3) -> Toggle Hitbox Debug
+        if (btn === 3 || btn === 11) {
+          this.showDebug = !this.showDebug;
+          if (!this.showDebug) this.debugGraphics.clear();
+        }
+      });
+    };
 
-    this.input.keyboard!.on('keydown-H', () => {
-      this.showDebug = !this.showDebug;
-      if (!this.showDebug) this.debugGraphics.clear();
-    });
+    if (this.input.gamepad) {
+      const p = this.input.gamepad.getPad(0);
+      if (p) bindDojoPad(p);
+      this.input.gamepad.on('connected', (np: Phaser.Input.Gamepad.Gamepad) => {
+        if (np.index === 0) bindDojoPad(np);
+      });
+    }
 
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanupDom());
   }
@@ -90,9 +104,23 @@ export class DojoScene extends Phaser.Scene {
 
     const fireballs = () => this.fireballs;
     this.controllers = [
-      new KeyboardController(this, KEYMAPS.p1),
+      new GamepadController(this, 0),
       new AIController(this.dummy, this.p1, fireballs),
     ];
+
+    if (this.input.gamepad) {
+      const pad = this.input.gamepad.getPad(0);
+      const onPadExit = (btn: number) => {
+        if (btn === 8) {
+          this.cleanupDom();
+          this.scene.start('TitleScene');
+        }
+      };
+      if (pad) pad.on('down', onPadExit);
+      this.input.gamepad.on('connected', (p: Phaser.Input.Gamepad.Gamepad) => {
+        if (p.index === 0) p.on('down', onPadExit);
+      });
+    }
   }
 
   update(_time: number, delta: number): void {

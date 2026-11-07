@@ -4,6 +4,7 @@ import { FightScene } from './scenes/FightScene';
 import { TitleScene } from './scenes/TitleScene';
 import { CinematicScene } from './scenes/CinematicScene';
 import { DojoScene } from './scenes/DojoScene';
+import { PrambananScene } from './scenes/PrambananScene';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -17,7 +18,10 @@ const game = new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  scene: [TitleScene, CinematicScene, FightScene, DojoScene],
+  input: {
+    gamepad: true,
+  },
+  scene: [TitleScene, CinematicScene, FightScene, DojoScene, PrambananScene],
 });
 
 // Dev only: lets tooling inspect the running game from the browser console.
